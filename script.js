@@ -208,21 +208,65 @@
   }
 
   /* =========================================================
-     PORTFOLIO TOGGLE — reveals the rest of the gallery in place.
-     No duplicate markup, no separate overlay system — the lightbox
-     already handles any .masonry img via delegation.
+     GALLERY MODAL — the full portfolio, opened from "View Portfolio".
+     Deep-linkable at /gallery: pushState on open so it's a real,
+     shareable/indexable URL, popstate handles back/forward, and a
+     direct visit to /gallery opens it straight away. (Note: for a
+     hard reload or a crawler's first hit on /gallery to actually
+     render this page rather than 404, the host needs to serve
+     index.html for that path — an SPA-style rewrite rule. Ask if you
+     want help wiring that up for your specific host.)
   ========================================================= */
-  function initPortfolioToggle() {
-    const btn = document.getElementById('portfolio-toggle');
-    const more = document.querySelectorAll('.masonry-more');
-    if (!btn || !more.length) return;
+  const GALLERY_PATH = '/gallery';
+  const DEFAULT_TITLE = document.title;
 
-    let expanded = false;
-    btn.addEventListener('click', () => {
-      expanded = !expanded;
-      more.forEach((item) => { item.hidden = !expanded; });
-      btn.textContent = expanded ? 'Show Less' : 'View Portfolio';
+  function openGalleryModal(pushUrl = true) {
+    const overlay = document.getElementById('gallery-overlay');
+    if (!overlay) return;
+    overlay.hidden = false;
+    void overlay.offsetWidth;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (pushUrl && location.pathname !== GALLERY_PATH) {
+      history.pushState({ gallery: true }, '', GALLERY_PATH);
+    }
+    document.title = 'Gallery | ISAAC MEDIA';
+  }
+
+  function closeGalleryModal(pushUrl = true) {
+    const overlay = document.getElementById('gallery-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { overlay.hidden = true; }, 300);
+    if (pushUrl && location.pathname === GALLERY_PATH) {
+      history.pushState({}, '', '/');
+    }
+    document.title = DEFAULT_TITLE;
+  }
+
+  function initGalleryModal() {
+    const overlay = document.getElementById('gallery-overlay');
+    const trigger = document.getElementById('portfolio-toggle');
+    const closeBtn = document.getElementById('gallery-close');
+    if (!overlay || !trigger) return;
+
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault(); // real href="/gallery" stays for crawlers/no-JS; JS intercepts for the SPA modal
+      openGalleryModal();
     });
+    closeBtn?.addEventListener('click', () => closeGalleryModal());
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeGalleryModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !overlay.hidden) closeGalleryModal();
+    });
+    window.addEventListener('popstate', () => {
+      if (location.pathname === GALLERY_PATH) openGalleryModal(false);
+      else closeGalleryModal(false);
+    });
+
+    // Direct visit to /gallery opens the modal immediately
+    if (location.pathname === GALLERY_PATH) openGalleryModal(false);
   }
 
   /* =========================================================
@@ -248,7 +292,7 @@
         <div class="form-actions">
           <button type="submit" class="btn btn-primary btn-xl text-uppercase">Submit</button>
           <button type="button" class="btn btn-outline-light btn-xl text-uppercase" data-whatsapp>
-            Enquire More <i class="fab fa-whatsapp ms-1"></i>
+            Enquire More<svg class="btn-icon icon-trailing" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.05-1.36A10 10 0 1 0 12 2zm0 18.2a8.15 8.15 0 0 1-4.16-1.14l-.3-.18-3.1.84.83-3.02-.2-.31A8.2 8.2 0 1 1 12 20.2zm4.5-6.13c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.78.95-.14.16-.28.18-.53.06-.24-.12-1.02-.38-1.95-1.21-.72-.64-1.2-1.44-1.35-1.68-.14-.24-.02-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.8-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z"/></svg>
           </button>
         </div>
       </form>
@@ -280,7 +324,7 @@
     about: () => `
       <h2 class="text-uppercase">About Isaac Media</h2>
       <p class="item-intro text-muted">Isaac Media</p>
-      <div class="image-wrapper">
+      <div class="image-wrapper image-wrapper--portrait">
         <img class="img-fluid d-block mx-auto about-modal-img" src="assets/img/isaac-ngobeni/isaac2.webp" alt="Isaac Media" loading="lazy" decoding="async">
       </div>
       <p class="about-text">Isaac Media is a creative visual brand founded by Isaac Ngobeni, a passionate photographer and videographer dedicated to capturing life's most meaningful moments with authenticity and excellence.</p>
@@ -288,7 +332,7 @@
       <p class="about-text">Isaac Media specializes in wedding, lifestyle, event, and family photography, creating timeless visuals that reflect genuine emotion, connection, and detail.</p>
       <p class="about-text">Founded in August 2022, the brand was built on a long-standing passion that began at the age of 16 while serving in the church media department.</p>
       <div class="modal-btn-group">
-        <button class="btn btn-primary btn-xl text-uppercase" data-close><i class="fas fa-xmark me-1"></i> Close About</button>
+        <button class="btn btn-primary btn-xl text-uppercase" data-close>Close About</button>
       </div>
     `,
     package1: () => packageTemplate({
@@ -315,15 +359,15 @@
     return `
       <h2 class="text-uppercase">${title}</h2>
       <p class="item-intro text-muted">Isaac Media</p>
-      <div class="image-wrapper">
-        <img class="img-fluid d-block mx-auto" src="${img}" alt="${title} package" loading="lazy" decoding="async" width="400" height="400">
+      <div class="image-wrapper image-wrapper--portrait">
+        <img class="img-fluid d-block mx-auto" src="${img}" alt="${title} package" loading="lazy" decoding="async">
       </div>
       <h5>${tagline}</h5>
       <ul class="list-inline">${items.map((i) => `<li>${i}</li>`).join('')}</ul>
       <h5>${price}</h5>
       <div class="modal-btn-group">
-        <button class="btn btn-book btn-xl text-uppercase" data-open-modal="booking"><i class="fas fa-calendar me-1"></i> Book Session</button>
-        <button class="btn btn-primary btn-xl text-uppercase" data-whatsapp>Enquire More <i class="fab fa-whatsapp ms-1"></i></button>
+        <button class="btn btn-book btn-xl text-uppercase" data-open-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book Session</button>
+        <button class="btn btn-primary btn-xl text-uppercase" data-whatsapp>Enquire More<svg class="btn-icon icon-trailing" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.05-1.36A10 10 0 1 0 12 2zm0 18.2a8.15 8.15 0 0 1-4.16-1.14l-.3-.18-3.1.84.83-3.02-.2-.31A8.2 8.2 0 1 1 12 20.2zm4.5-6.13c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.78.95-.14.16-.28.18-.53.06-.24-.12-1.02-.38-1.95-1.21-.72-.64-1.2-1.44-1.35-1.68-.14-.24-.02-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.8-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z"/></svg></button>
       </div>
     `;
   }
@@ -341,6 +385,9 @@
       if (!build) return;
       lastFocused = document.activeElement;
       content.innerHTML = build();
+      content.classList.remove('modal-content--enter');
+      void content.offsetWidth; // force reflow so the animation replays every open, not just the first
+      content.classList.add('modal-content--enter');
       overlay.hidden = false;
       void overlay.offsetWidth; // force reflow so the open transition runs
       overlay.classList.add('open');
@@ -477,7 +524,7 @@
     let index = 0;
 
     const refreshGallery = () => {
-      gallery = [...document.querySelectorAll('.gallery-masonry img, .masonry img')];
+      gallery = [...document.querySelectorAll('.gallery-masonry img')];
     };
 
     const show = (i) => {
@@ -494,9 +541,10 @@
     };
     const close = () => lightbox.classList.remove('active');
 
-    // Delegated: works for images added later (e.g. gallery modal content)
+    // Delegated — only images inside the gallery modal are clickable;
+    // the main-page preview grid is hover-only (see .masonry img in CSS)
     document.addEventListener('click', (e) => {
-      const img = e.target.closest('.gallery-masonry img, .masonry img');
+      const img = e.target.closest('.gallery-masonry img');
       if (!img) return;
       refreshGallery();
       open(gallery.indexOf(img));
@@ -531,7 +579,7 @@
       initStaticForms();
       initAccordion();
       initLightbox();
-      initPortfolioToggle();
+      initGalleryModal();
     });
   }
 
