@@ -575,6 +575,7 @@ button {
 }
 
 .package-card {
+  display: block;
   background: var(--glass-bg-weak);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);

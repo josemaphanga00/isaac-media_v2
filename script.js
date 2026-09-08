@@ -271,7 +271,24 @@
 
   /* =========================================================
      MODAL SYSTEM — single reusable overlay, real content, delegated triggers
+     Each modal now has its own real, indexable route (deep-linkable via
+     pushState, same pattern as the gallery). This also matters for
+     accessibility: triggers are real <a href> elements now, not bare
+     buttons with no destination, so a screen reader or crawler can tell
+     where each one actually goes.
   ========================================================= */
+  const MODAL_ROUTES = {
+    about:    { path: '/about',              title: 'About | ISAAC MEDIA' },
+    booking:  { path: '/booking',            title: 'Book a Session | ISAAC MEDIA' },
+    inquiry:  { path: '/inquiry',            title: 'Ask a Question | ISAAC MEDIA' },
+    package1: { path: '/packages/starter',   title: 'Starter Package | ISAAC MEDIA' },
+    package2: { path: '/packages/standard',  title: 'Standard Package | ISAAC MEDIA' },
+    package3: { path: '/packages/premium',   title: 'Premium Package | ISAAC MEDIA' },
+  };
+  const PATH_TO_MODAL_KEY = Object.fromEntries(
+    Object.entries(MODAL_ROUTES).map(([key, route]) => [route.path, key])
+  );
+
   const modalTemplates = {
     booking: () => `
       <h2 class="text-uppercase">Book Your Wedding</h2>
@@ -366,7 +383,7 @@
       <ul class="list-inline">${items.map((i) => `<li>${i}</li>`).join('')}</ul>
       <h5>${price}</h5>
       <div class="modal-btn-group">
-        <button class="btn btn-book btn-xl text-uppercase" data-open-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book Session</button>
+        <a href="/booking" class="btn btn-book btn-xl text-uppercase" data-open-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book Session</a>
         <button class="btn btn-primary btn-xl text-uppercase" data-whatsapp>Enquire More<svg class="btn-icon icon-trailing" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.05-1.36A10 10 0 1 0 12 2zm0 18.2a8.15 8.15 0 0 1-4.16-1.14l-.3-.18-3.1.84.83-3.02-.2-.31A8.2 8.2 0 1 1 12 20.2zm4.5-6.13c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.78.95-.14.16-.28.18-.53.06-.24-.12-1.02-.38-1.95-1.21-.72-.64-1.2-1.44-1.35-1.68-.14-.24-.02-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.8-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z"/></svg></button>
       </div>
     `;
@@ -379,8 +396,9 @@
     if (!overlay || !content || !closeBtn) return;
 
     let lastFocused = null;
+    let currentKey = null;
 
-    function open(key) {
+    function open(key, pushUrl = true) {
       const build = modalTemplates[key];
       if (!build) return;
       lastFocused = document.activeElement;
@@ -394,9 +412,18 @@
       document.body.style.overflow = 'hidden';
       closeBtn.focus();
       bindFormsIn(content);
+
+      currentKey = key;
+      const route = MODAL_ROUTES[key];
+      if (route) {
+        if (pushUrl && location.pathname !== route.path) {
+          history.pushState({ modal: key }, '', route.path);
+        }
+        document.title = route.title;
+      }
     }
 
-    function close() {
+    function close(pushUrl = true) {
       overlay.classList.remove('open');
       document.body.style.overflow = '';
       setTimeout(() => {
@@ -404,12 +431,20 @@
         content.innerHTML = '';
         lastFocused?.focus();
       }, 300);
+
+      const route = currentKey && MODAL_ROUTES[currentKey];
+      if (pushUrl && route && location.pathname === route.path) {
+        history.pushState({}, '', '/');
+      }
+      document.title = DEFAULT_TITLE;
+      currentKey = null;
     }
 
     // Single delegated listener handles every trigger, current and future
     document.addEventListener('click', (e) => {
       const trigger = e.target.closest('[data-modal], [data-open-modal]');
       if (trigger) {
+        e.preventDefault(); // real hrefs stay for crawlers/no-JS; JS intercepts for the SPA modal
         open(trigger.dataset.modal || trigger.dataset.openModal);
         return;
       }
@@ -420,11 +455,21 @@
       if (e.target.closest('[data-close]')) close();
     });
 
-    closeBtn.addEventListener('click', close);
+    closeBtn.addEventListener('click', () => close());
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !overlay.hidden) close();
     });
+
+    window.addEventListener('popstate', () => {
+      const key = PATH_TO_MODAL_KEY[location.pathname];
+      if (key) open(key, false);
+      else if (currentKey) close(false);
+    });
+
+    // Direct visit or reload on one of these routes opens the matching modal
+    const initialKey = PATH_TO_MODAL_KEY[location.pathname];
+    if (initialKey) open(initialKey, false);
   }
 
   /* =========================================================

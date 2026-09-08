@@ -2,6 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- Anchors every relative URL (images, CSS, JS, and anything inserted
+       into the page later) to wherever this file actually lives, e.g.
+       "/" on a custom domain or "/repo-name/" on a GitHub Pages project
+       site. Resolved once, at real page load — pushState changing the
+       address bar to /gallery, /booking, /packages/starter etc. never
+       touches this, so lazy-loaded images and modal content inserted
+       after navigating never break. This is the fix for the GitHub vs.
+       local gallery image bug. -->
+  <base href="./" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#0d0d0d" />
@@ -86,7 +95,7 @@
         <a href="#faq">FAQ</a>
         <a href="#team">Team</a>
         <a href="#contact">Contact</a>
-        <button class="btn btn-book nav-book-btn" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</button>
+        <a href="/booking" class="btn btn-book nav-book-btn" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</a>
       </nav>
 
       <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
@@ -103,7 +112,7 @@
       <a href="#faq">FAQ</a>
       <a href="#team">Team</a>
       <a href="#contact">Contact</a>
-      <button class="btn btn-book" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</button>
+      <a href="/booking" class="btn btn-book" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</a>
     </nav>
   </div>
 
@@ -133,7 +142,7 @@
             <p class="section-subheading">Isaac Media</p>
             <p>Isaac Media is a creative visual brand founded by Isaac Ngobeni, a passionate photographer and videographer dedicated to capturing life's most meaningful moments with authenticity and excellence.</p>
             <p>With over 10 years of experience in videography, 4 years in video editing, and 4 years in professional photography, Isaac brings a unique storytelling approach shaped by his journey behind the camera.</p>
-            <button class="btn-link" data-modal="about">Read More <span class="btn-link-arrow">→</span></button>
+            <a href="/about" class="btn-link" data-modal="about">Read More <span class="btn-link-arrow">→</span></a>
           </div>
         </div>
       </div>
@@ -148,7 +157,7 @@
         </div>
 
         <div class="packages-grid">
-          <div class="package-card" data-modal="package1" role="button" tabindex="0">
+          <a href="/packages/starter" class="package-card" data-modal="package1">
             <div class="package-image-wrap">
               <img src="assets/img/package-img/msiza.webp" alt="Starter package" loading="lazy" decoding="async" />
               <div class="portfolio-hover"><span class="plus-icon">+</span></div>
@@ -158,9 +167,9 @@
               <p class="package-description">Intimate coverage for the moments that matter most.</p>
               <span class="package-link">→ See full package · R9,000</span>
             </div>
-          </div>
+          </a>
 
-          <div class="package-card featured" data-modal="package2" role="button" tabindex="0">
+          <a href="/packages/standard" class="package-card featured" data-modal="package2">
             <div class="package-image-wrap">
               <img src="assets/img/package-img/is3.webp" alt="Standard package" loading="lazy" decoding="async" />
               <div class="portfolio-hover"><span class="plus-icon">+</span></div>
@@ -171,9 +180,9 @@
               <p class="package-description">Full-day cinematic storytelling from start to finish.</p>
               <span class="package-link">→ See full package · R15,500</span>
             </div>
-          </div>
+          </a>
 
-          <div class="package-card" data-modal="package3" role="button" tabindex="0">
+          <a href="/packages/premium" class="package-card" data-modal="package3">
             <div class="package-image-wrap">
               <img src="assets/img/package-img/sandrasabelo.webp" alt="Premium package" loading="lazy" decoding="async" />
               <div class="portfolio-hover"><span class="plus-icon">+</span></div>
@@ -183,7 +192,7 @@
               <p class="package-description">Premium experience — every detail beautifully preserved.</p>
               <span class="package-link">→ See full package · R23,500</span>
             </div>
-          </div>
+          </a>
         </div>
       </div>
     </section>
@@ -333,8 +342,8 @@
         <h2>Get in Touch</h2>
         <p class="section-subheading">Choose how you'd like to get started</p>
         <div class="contact-buttons">
-          <button class="btn btn-book btn-xl" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</button>
-          <button class="btn btn-outline-light btn-xl" data-modal="inquiry"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask a Question</button>
+          <a href="/booking" class="btn btn-book btn-xl" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</a>
+          <a href="/inquiry" class="btn btn-outline-light btn-xl" data-modal="inquiry"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask a Question</a>
         </div>
       </div>
     </section>
