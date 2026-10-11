@@ -47,16 +47,55 @@
     const navbar = document.getElementById('mainNav');
     if (!navbar) return;
 
+    /* Shrink + hide-on-scroll-down, reveal-on-scroll-up. Gives the nav
+       real presence: it gets out of the way while you're reading down
+       the page, then reappears the moment you start scrolling back up
+       — you never have to scroll all the way to the top to find it. */
+    let lastY = window.scrollY;
     onScroll(() => {
-      navbar.classList.toggle('navbar-shrink', window.scrollY > 8);
+      const y = window.scrollY;
+      navbar.classList.toggle('navbar-shrink', y > 8);
+
+      const scrollingDown = y > lastY;
+      const pastThreshold = y > 120;
+      navbar.classList.toggle('navbar--hidden', scrollingDown && pastThreshold);
+      lastY = y;
     });
 
-    const navLinks = navbar.querySelectorAll('a[href^="#"]');
-    const sections = [...navLinks]
+    const navLinks = [...navbar.querySelectorAll('a[href^="#"]')];
+    const sections = navLinks
       .map((link) => document.querySelector(link.getAttribute('href')))
       .filter(Boolean);
+    if (!sections.length) return;
 
-    if (!sections.length || !('IntersectionObserver' in window)) return;
+    /* Sliding indicator under the active link — and a live preview that
+       follows the cursor on hover before settling back to whichever
+       section you're actually reading */
+    const navList = navbar.querySelector('.nav-links');
+    let indicator = null;
+    if (navList) {
+      indicator = document.createElement('span');
+      indicator.className = 'nav-indicator';
+      indicator.setAttribute('aria-hidden', 'true');
+      navList.appendChild(indicator);
+    }
+
+    const moveIndicatorTo = (link) => {
+      if (!indicator || !link) return;
+      indicator.style.width = `${link.offsetWidth}px`;
+      indicator.style.transform = `translateX(${link.offsetLeft}px)`;
+      indicator.classList.add('visible');
+    };
+
+    let activeLink = null;
+    const restoreIndicator = () => moveIndicatorTo(activeLink);
+
+    navLinks.forEach((link) => {
+      link.addEventListener('mouseenter', () => moveIndicatorTo(link));
+    });
+    navList?.addEventListener('mouseleave', restoreIndicator);
+
+    if (!('IntersectionObserver' in window)) return;
 
     const linkFor = (id) => navbar.querySelector(`a[href="#${id}"]`);
 
@@ -68,6 +107,8 @@
           if (entry.isIntersecting) {
             navLinks.forEach((l) => l.classList.remove('active'));
             link.classList.add('active');
+            activeLink = link;
+            restoreIndicator();
           }
         });
       },
@@ -75,6 +116,9 @@
     );
 
     sections.forEach((section) => io.observe(section));
+
+    // Keep the indicator aligned if the layout reflows (font load, resize)
+    window.addEventListener('resize', debounce(restoreIndicator, 150), { passive: true });
   }
 
   /* =========================================================
@@ -524,6 +568,98 @@
   /* =========================================================
      FAQ ACCORDION — native, single-open, debounced resize recalibration
   ========================================================= */
+
+  /* ---------------------------------------------------------------
+     REVIEWS CAROUSEL
+     Native scroll-snap does the motion; JS only wires the buttons,
+     dots and a11y. Add REAL client reviews to REVIEWS — the section
+     stays hidden while the list is empty.
+     Visit /?reviews=preview to see the layout with clearly-labelled
+     sample cards (never shown to normal visitors).
+  --------------------------------------------------------------- */
+  const REVIEWS = [
+    // DRAFT copy carried over from your first mock-up — swap these for real
+    // client reviews (name, meta, rating, text) before launch.
+    { name: "Sarah & John", meta: "Wedding", rating: 5, text: "ISAAC MEDIA captured our wedding beautifully. Every moment was perfect." },
+    { name: "Emily & Michael", meta: "Wedding", rating: 5, text: "Professional, creative, and a joy to work with. The photos exceeded our expectations." },
+    { name: "Jessica & David", meta: "Wedding", rating: 5, text: "Absolutely stunning work! The team made us feel so comfortable." },
+    { name: "Thabo & Lerato", meta: "Wedding", rating: 5, text: "From the first call to the final gallery, everything felt effortless. We still look at our photos every week." },
+    { name: "Naledi M.", meta: "Birthday Shoot", rating: 5, text: "Isaac made me feel confident in front of the camera. The edits were clean, bold and delivered fast." },
+    { name: "Kagiso & Palesa", meta: "Engagement", rating: 5, text: "Relaxed, creative and so easy to work with. Every frame feels like us." },
+  ];
+  const PREVIEW_REVIEWS = [1, 2, 3, 4].map((n) => ({
+    name: "Sample Client " + n, meta: "Preview only", rating: 5,
+    text: "Sample review text for layout preview. Replace with a real client review."
+  }));
+
+  function initReviews() {
+    const section = document.getElementById('reviews');
+    const track = document.getElementById('reviews-track');
+    const dotsWrap = document.getElementById('reviews-dots');
+    if (!section || !track || !dotsWrap) return;
+
+    const preview = /[?&]reviews=preview\b/.test(location.search);
+    const data = REVIEWS.length ? REVIEWS : (preview ? PREVIEW_REVIEWS : []);
+    if (!data.length) return;
+
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const star = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21.1 7 14.2 2 9.3l6.9-1z"/></svg>';
+    const quote = '<svg class="review-quote-icon" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.2 6C4.9 7.4 3.5 9.6 3.5 12.6V18h6v-6H6.4c.1-1.6.9-2.9 2.3-3.8zm9.5 0c-2.3 1.4-3.7 3.6-3.7 6.6V18h6v-6h-3.1c.1-1.6.9-2.9 2.3-3.8z"/></svg>';
+
+    track.innerHTML = data.map((r, i) => {
+      const initials = r.name.split(/\s+/).filter((p) => /^[A-Za-z]/.test(p)).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+      const stars = star.repeat(Math.max(1, Math.min(5, r.rating || 5)));
+      return '<figure class="review-card" role="group" aria-roledescription="slide" aria-label="' + (i + 1) + ' of ' + data.length + '">' +
+        quote + '<div class="stars" role="img" aria-label="' + (r.rating || 5) + ' out of 5 stars">' + stars + '</div>' +
+        '<blockquote class="review-text">' + esc(r.text) + '</blockquote>' +
+        '<figcaption class="review-author"><span class="review-avatar">' + esc(initials) + '</span><span><span class="review-name">' + esc(r.name) + '</span><span class="review-meta">' + esc(r.meta || '') + '</span></span></figcaption></figure>';
+    }).join('');
+    section.hidden = false;
+
+    const cards = Array.from(track.children);
+    const prev = section.querySelector('[data-reviews-prev]');
+    const next = section.querySelector('[data-reviews-next]');
+    const gap = () => parseFloat(getComputedStyle(track).columnGap) || 20;
+    const cardStep = () => cards[0].getBoundingClientRect().width + gap();
+    // Cards visible at once: 3 desktop, 2 tablet, 1 phone — one "page" each
+    const perView = () => Math.max(1, Math.round((track.clientWidth + gap()) / cardStep()));
+    const pageCount = () => Math.ceil(cards.length / perView());
+    const currentPage = () => Math.round(track.scrollLeft / (cardStep() * perView()));
+
+    function buildDots() {
+      const n = pageCount();
+      dotsWrap.innerHTML = Array.from({ length: n }, (_, i) =>
+        '<button type="button" class="reviews-dot" role="tab" aria-label="Reviews page ' + (i + 1) + '" data-i="' + i + '"></button>').join('');
+      const single = n <= 1;
+      dotsWrap.hidden = prev.hidden = next.hidden = single;
+    }
+    // Wraps around so the arrows are always live: last page → first
+    function goToPage(p) {
+      const n = pageCount();
+      p = (p + n) % n;
+      const first = Math.min(p * perView(), cards.length - perView());
+      track.scrollTo({ left: first * cardStep(), behavior: 'smooth' });
+    }
+    let ticking = false;
+    function sync() {
+      ticking = false;
+      const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+      const page = atEnd ? pageCount() - 1 : currentPage();
+      Array.from(dotsWrap.children).forEach((d, n) => d.setAttribute('aria-selected', String(n === page)));
+    }
+    track.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(sync); } }, { passive: true });
+    prev.addEventListener('click', () => goToPage(currentPage() - 1));
+    next.addEventListener('click', () => goToPage(currentPage() + 1));
+    dotsWrap.addEventListener('click', (e) => { const d = e.target.closest('[data-i]'); if (d) goToPage(+d.dataset.i); });
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); next.click(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); prev.click(); }
+    });
+    let lastPer = 0;
+    window.addEventListener('resize', () => { if (perView() !== lastPer) { lastPer = perView(); buildDots(); } sync(); }, { passive: true });
+    lastPer = perView(); buildDots(); sync();
+  }
+
   function initAccordion() {
     const items = document.querySelectorAll('.accordion-item');
     if (!items.length) return;
@@ -623,6 +759,7 @@
       initModals();
       initStaticForms();
       initAccordion();
+      initReviews();
       initLightbox();
       initGalleryModal();
     });
