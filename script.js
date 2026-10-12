@@ -531,31 +531,97 @@
     });
   }
 
+  /* ---------------------------------------------------------------
+     FORM FEEDBACK — one reusable frosted-glass dialog replaces alert().
+     Built lazily on first use; focus is trapped on its button and
+     returned to wherever the visitor was; Esc / backdrop / button close.
+  --------------------------------------------------------------- */
+  const NOTICE_ICONS = {
+    success: '<svg viewBox="0 0 52 52" aria-hidden="true"><circle class="notice-ring" cx="26" cy="26" r="24"/><path class="notice-mark" d="M15 27l8 8 14-16"/></svg>',
+    error: '<svg viewBox="0 0 52 52" aria-hidden="true"><circle class="notice-ring" cx="26" cy="26" r="24"/><path class="notice-mark" d="M18 18l16 16M34 18L18 34"/></svg>',
+  };
+  let noticeEl = null, noticeReturnFocus = null, noticeOnClose = null;
+
+  function closeNotice() {
+    if (!noticeEl || noticeEl.hidden) return;
+    noticeEl.classList.remove('open');
+    const el = noticeEl, cb = noticeOnClose;
+    noticeOnClose = null;
+    setTimeout(() => { el.hidden = true; }, 300);
+    if (cb) cb();
+    else if (noticeReturnFocus && document.contains(noticeReturnFocus)) noticeReturnFocus.focus();
+  }
+
+  function showNotice({ type = 'success', title, message, button = 'Done', onClose }) {
+    if (!noticeEl) {
+      noticeEl = document.createElement('div');
+      noticeEl.className = 'notice-overlay';
+      noticeEl.hidden = true;
+      noticeEl.innerHTML = '<div class="notice" role="alertdialog" aria-modal="true" aria-labelledby="notice-title" aria-describedby="notice-msg">' +
+        '<div class="notice-icon"></div><h3 id="notice-title"></h3><p id="notice-msg"></p>' +
+        '<button type="button" class="btn btn-primary btn-xl text-uppercase notice-btn"></button></div>';
+      document.body.appendChild(noticeEl);
+      noticeEl.addEventListener('click', (e) => { if (e.target === noticeEl || e.target.closest('.notice-btn')) closeNotice(); });
+      document.addEventListener('keydown', (e) => {
+        if (noticeEl.hidden) return;
+        if (e.key === 'Escape') { e.stopPropagation(); closeNotice(); }
+        if (e.key === 'Tab') { e.preventDefault(); noticeEl.querySelector('.notice-btn').focus(); }
+      }, true);
+    }
+    noticeReturnFocus = document.activeElement;
+    noticeOnClose = onClose || null;
+    noticeEl.dataset.type = type;
+    noticeEl.querySelector('.notice-icon').innerHTML = NOTICE_ICONS[type];
+    noticeEl.querySelector('#notice-title').textContent = title;
+    noticeEl.querySelector('#notice-msg').textContent = message;
+    noticeEl.querySelector('.notice-btn').textContent = button;
+    noticeEl.hidden = false;
+    void noticeEl.offsetWidth;            // flush so the entrance transition runs
+    noticeEl.classList.add('open');
+    noticeEl.querySelector('.notice-btn').focus();
+  }
+
+  const FORM_COPY = {
+    bookingform: {
+      title: (n) => n ? 'Thank you, ' + n + '.' : 'Thank you.',
+      message: 'Your booking request is in. Isaac will review your date and get back to you within 24 hours.',
+    },
+    inquiryform: {
+      title: (n) => n ? 'Message received, ' + n + '.' : 'Message received.',
+      message: 'Thanks for reaching out. We will reply to your enquiry as soon as we can.',
+    },
+  };
+
   function attachFormHandler(form, endpoint) {
     form.dataset.bound = 'true';
+    const copy = FORM_COPY[Object.keys(FORM_ENDPOINTS).find((c) => form.classList.contains(c))] || FORM_COPY.inquiryform;
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = form.querySelector('[type="submit"]');
       if (submitBtn?.disabled) return; // guard against double submit
       if (submitBtn) submitBtn.disabled = true;
+      const label = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) submitBtn.textContent = 'Sending…';
 
       try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' },
-        });
+        const data = new FormData(form);
+        const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
         if (res.ok) {
-          alert('Thank you! We will get back to you soon.');
+          const first = String(data.get('fullName') || data.get('full_name') || '').trim().split(/\s+/)[0];
           form.reset();
+          showNotice({
+            type: 'success', title: copy.title(first), message: copy.message,
+            // inside a modal → close it too once the visitor dismisses the notice
+            onClose: () => document.getElementById('modal-close')?.click(),
+          });
         } else {
-          alert('Something went wrong. Please try again.');
+          showNotice({ type: 'error', title: 'Something went wrong', message: 'Your message was not sent. Please try again, or reach us on WhatsApp.', button: 'Try again' });
         }
       } catch (err) {
         console.error('Submission error:', err);
-        alert('Network error. Please check your connection and try again.');
+        showNotice({ type: 'error', title: 'No connection', message: 'We could not reach the server. Check your internet and try again.', button: 'Try again' });
       } finally {
-        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = label; }
       }
     });
   }
