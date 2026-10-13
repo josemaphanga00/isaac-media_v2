@@ -391,6 +391,10 @@
   function openGalleryModal(pushUrl = true) {
     const overlay = document.getElementById('gallery-overlay');
     if (!overlay) return;
+    if (!overlay.dataset.imagesPrepared) {
+      prepareGalleryImages(overlay);
+      overlay.dataset.imagesPrepared = 'true';
+    }
     overlay.hidden = false;
     void overlay.offsetWidth;
     overlay.classList.add('open');
@@ -450,8 +454,6 @@
     const trigger = document.getElementById('portfolio-toggle');
     const closeBtn = document.getElementById('gallery-close');
     if (!overlay || !trigger) return;
-    prepareGalleryImages(overlay);
-
     trigger.addEventListener('click', (event) => {
       event.preventDefault();
       openGalleryModal();

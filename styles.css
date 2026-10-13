@@ -454,12 +454,14 @@ button {
 .hero-eyebrow::after { transform: scaleX(-1); }
 .hero-eyebrow::before, .hero-eyebrow::after {
   content: "";
-  width: 0;
+  width: 2.5rem;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--color-line));
+  transform: scaleX(0);
+  transform-origin: center;
   animation: heroLine 0.8s ease-out 0.6s forwards;
 }
-@keyframes heroLine { to { width: 2.5rem; } }
+@keyframes heroLine { to { transform: scaleX(1); } }
 
 /* -------- "Isaac Media" title with viewfinder corner brackets -------- */
 .hero-title {
