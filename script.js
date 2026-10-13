@@ -226,7 +226,14 @@
       'assets/img/hero-section/cater.webp',
     ];
     const isMobile = window.matchMedia('(max-width: 576px)').matches || navigator.connection?.saveData;
-    const images = isMobile ? ['assets/img/mobile/hero.webp'] : desktopImages;
+    const images = isMobile
+      ? [
+          'assets/img/mobile/hero.webp',
+          'assets/img/mobile/hero-rings.webp',
+          'assets/img/mobile/hero-wed.webp',
+          'assets/img/mobile/hero-cater.webp',
+        ]
+      : desktopImages;
 
     // The first slide is in the HTML/CSS so the hero can paint before this
     // deferred script runs. Reuse it, then create only the later slides.
@@ -246,9 +253,8 @@
     let current = 0;
     slides[0].classList.add('active');
 
-    // Mobile and data-saver connections keep one compressed hero image and
-    // avoid slideshow timers, extra downloads, and full-screen crossfades.
-    if (isMobile || prefersReducedMotion) return;
+    // Use compressed mobile images, then fetch each next slide only as needed.
+    if (prefersReducedMotion) return;
 
     let timer = null;
     let visible = !document.hidden;
@@ -293,8 +299,7 @@
     };
     const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
 
-    // Every crossfade forces all the frosted panels to re-blur, so only run
-    // it while the hero is actually on screen.
+    // Keep the slideshow active only while the hero is actually on screen.
     let heroInView = true;
     const sync = () => (visible && heroInView ? start() : stop());
     document.addEventListener('visibilitychange', () => { visible = !document.hidden; sync(); });
@@ -320,6 +325,7 @@
       const isMobile = window.matchMedia('(max-width: 576px)').matches || navigator.connection?.saveData;
       let current = 0;
       let timer = null;
+      let isInView = false;
 
       const loadSlide = (i) => new Promise((resolve) => {
         const slide = slides[i];
@@ -349,9 +355,11 @@
         current = i;
       };
       const start = () => {
-        if (prefersReducedMotion || isMobile || timer) return;
+        if (prefersReducedMotion || document.hidden || !isInView || timer) return;
         // staggered start so the four crossfades never land on the same frame
         timer = setTimeout(function tick() {
+          timer = null;
+          if (document.hidden || !isInView) return;
           goTo((current + 1) % slides.length);
           timer = setTimeout(tick, 4000);
         }, 1200 + groupIndex * 1000);
@@ -361,6 +369,7 @@
       if ('IntersectionObserver' in window) {
         new IntersectionObserver(
           (entries) => entries.forEach((e) => {
+            isInView = e.isIntersecting;
             if (e.isIntersecting) {
               loadSlide(current);
               loadSlide((current + 1) % slides.length);
@@ -370,12 +379,14 @@
           { threshold: 0.1 }
         ).observe(container);
       } else {
+        isInView = true;
         loadSlide(current);
         start();
       }
 
       document.addEventListener('visibilitychange', () => {
-        document.hidden ? stop() : start();
+        if (document.hidden) stop();
+        else start();
       });
     });
   }

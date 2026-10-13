@@ -855,10 +855,10 @@ button {
 @media (max-width: 992px) { .gallery-masonry { column-count: 3; } }
 @media (max-width: 480px) { .gallery-masonry { column-count: 2; } }
 
-/* Keep photo-heavy pages smooth on phones: one static, pre-sized hero;
-   native scrolling without large backdrop-filter surfaces or image filters. */
+/* Keep photo-heavy pages smooth on phones with compressed imagery,
+   native scrolling, and no full-screen image filters. */
 @media (max-width: 576px) {
-  .bg-slide { filter: none; transition: none; }
+  .bg-slide { filter: none; transition: opacity 1.2s ease-in-out; }
   .bg-overlay { background: linear-gradient(rgba(0,0,0,.68), rgba(0,0,0,.5), rgba(0,0,0,.72)); }
   .navbar-inner,
   .mobile-menu,
