@@ -38,7 +38,7 @@
     onScroll(updateProgress);
     updateProgress();
 
-    if (prefersReducedMotion || !('IntersectionObserver' in window)) return;
+    if (prefersReducedMotion || window.matchMedia('(max-width: 576px)').matches || !('IntersectionObserver' in window)) return;
     const targets = document.querySelectorAll('.glass-section, .footer, .package-card, .event-slideshow');
     if (!targets.length) return;
     document.body.classList.add('motion-ready');
@@ -52,27 +52,6 @@
     targets.forEach((target) => {
       target.classList.add('reveal-on-scroll');
       observer.observe(target);
-    });
-  }
-
-  function initImageLoadingStates() {
-    const setState = (img) => {
-      const loaded = img.naturalWidth > 0;
-      img.classList.add(loaded ? 'image-loaded' : 'image-failed');
-      const masonryItem = img.closest('.masonry .item');
-      if (masonryItem) masonryItem.classList.add('image-ready');
-    };
-
-    // Capture load/error because those events do not bubble; this also
-    // covers images inserted later by package/about modal templates.
-    document.addEventListener('load', (event) => {
-      if (event.target instanceof HTMLImageElement) setState(event.target);
-    }, true);
-    document.addEventListener('error', (event) => {
-      if (event.target instanceof HTMLImageElement) setState(event.target);
-    }, true);
-    document.querySelectorAll('img').forEach((img) => {
-      if (img.complete) setState(img);
     });
   }
 
@@ -213,33 +192,28 @@
     const container = document.getElementById('bg-slideshow');
     if (!container) return;
 
-    const images = [
+    const desktopImages = [
       'assets/img/hero-section/hero_sabelo.webp',
       'assets/img/hero-section/rings.webp',
       'assets/img/hero-section/wed.webp',
       'assets/img/hero-section/cater.webp',
     ];
+    const isMobile = window.matchMedia('(max-width: 576px)').matches || navigator.connection?.saveData;
+    const images = isMobile ? ['assets/img/mobile/hero.webp'] : desktopImages;
 
     const slides = images.map((src, i) => {
       const div = document.createElement('div');
       div.className = 'bg-slide';
-      // Only the first two are eagerly set — the rest load just-in-time
-      if (i < 2) div.style.backgroundImage = `url('${src}')`;
+      if (i === 0) div.style.backgroundImage = `url('${src}')`;
       container.appendChild(div);
       return div;
     });
     let current = 0;
-    const activateFirst = () => {
-      if (current === 0) slides[0].classList.add('active');
-    };
-    const firstImage = new Image();
-    firstImage.decoding = 'async';
-    firstImage.onload = activateFirst;
-    firstImage.onerror = activateFirst;
-    firstImage.src = images[0];
-    if (firstImage.complete) activateFirst();
+    slides[0].classList.add('active');
 
-    if (prefersReducedMotion) return; // static first frame only, no timers at all
+    // Mobile and data-saver connections keep one compressed hero image and
+    // avoid slideshow timers, extra downloads, and full-screen crossfades.
+    if (isMobile || prefersReducedMotion) return;
 
     let timer = null;
     let visible = !document.hidden;
@@ -251,13 +225,18 @@
     };
 
     const goTo = (i) => {
-      load(i);
       const backgroundImage = new Image();
       backgroundImage.decoding = 'async';
-      backgroundImage.onload = () => activateSlide(i);
+      backgroundImage.onload = () => {
+        load(i);
+        activateSlide(i);
+      };
       backgroundImage.onerror = () => activateSlide(i);
       backgroundImage.src = images[i];
-      if (backgroundImage.complete) activateSlide(i);
+      if (backgroundImage.complete) {
+        load(i);
+        activateSlide(i);
+      }
     };
 
     const activateSlide = (i) => {
@@ -295,26 +274,55 @@
       const slides = container.querySelectorAll('.event-slide');
       if (slides.length < 2) return;
 
+      const isMobile = window.matchMedia('(max-width: 576px)').matches || navigator.connection?.saveData;
       let current = 0;
       let timer = null;
 
-      const goTo = (i) => {
+      const loadSlide = (i) => new Promise((resolve) => {
+        const slide = slides[i];
+        if (slide.dataset.loaded === 'true') { resolve(true); return; }
+        const src = slide.dataset[isMobile ? 'mobileSrc' : 'desktopSrc'];
+        if (!src) { resolve(false); return; }
+        const image = new Image();
+        image.decoding = 'async';
+        image.onload = () => {
+          slide.style.backgroundImage = `url("${src}")`;
+          slide.dataset.loaded = 'true';
+          resolve(true);
+        };
+        image.onerror = () => resolve(false);
+        image.src = src;
+        if (image.complete && image.naturalWidth) {
+          slide.style.backgroundImage = `url("${src}")`;
+          slide.dataset.loaded = 'true';
+          resolve(true);
+        }
+      });
+
+      const goTo = async (i) => {
+        if (!await loadSlide(i)) return;
         slides[current].classList.remove('active');
         slides[i].classList.add('active');
         current = i;
       };
       const start = () => {
-        if (prefersReducedMotion || timer) return;
+        if (prefersReducedMotion || isMobile || timer) return;
         timer = setInterval(() => goTo((current + 1) % slides.length), 4000);
       };
       const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
 
       if ('IntersectionObserver' in window) {
         new IntersectionObserver(
-          (entries) => entries.forEach((e) => (e.isIntersecting ? start() : stop())),
+          (entries) => entries.forEach((e) => {
+            if (e.isIntersecting) {
+              loadSlide(current);
+              start();
+            } else stop();
+          }),
           { threshold: 0.1 }
         ).observe(container);
       } else {
+        loadSlide(current);
         start();
       }
 
@@ -902,7 +910,6 @@
   ========================================================= */
   function init() {
     // Critical for first paint / above-the-fold interaction
-    initImageLoadingStates();
     initScrollExperience();
     initNavbar();
     initMobileMenu();

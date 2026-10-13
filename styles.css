@@ -396,7 +396,6 @@ button {
   opacity: 0;
   filter: brightness(0.55) contrast(1.05);
   transition: opacity 1.5s ease-in-out;
-  will-change: opacity;
 }
 .bg-slide.active { opacity: 1; }
 
@@ -550,8 +549,35 @@ button {
 }
 
 @media (max-width: 576px) {
-  .hero-title { padding: 1rem 1.25rem; letter-spacing: 0.03em; }
+  .hero-section {
+    padding: 6rem 1rem 2.5rem;
+  }
+  .hero-section .container { padding-right: 0; padding-left: 0; }
+  .hero-eyebrow {
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.2em;
+    white-space: nowrap;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after { flex: 0 0 1.5rem; }
+  .hero-title {
+    padding: 0.9rem 1rem;
+    font-size: clamp(2.65rem, 11vw, 3.6rem);
+    letter-spacing: 0.02em;
+  }
   .hero-title::before, .hero-title::after { width: 18px; height: 18px; }
+  .hero-tagline { max-width: 34ch; font-size: 1.05rem; line-height: 1.45; margin-bottom: 1rem; }
+  .hero-location, .hero-availability { font-size: 0.92rem; line-height: 1.45; }
+  .hero-actions { gap: 0.6rem; margin-top: 1.25rem; }
+  .hero-actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.8rem 0.45rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.025em;
+    line-height: 1.35;
+  }
+  .scroll-indicator { margin-top: 1.5rem; height: 28px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -581,7 +607,6 @@ button {
   opacity: 0;
   transform: translateY(22px);
   transition: opacity 0.75s var(--ease-premium), transform 0.75s var(--ease-premium);
-  will-change: opacity, transform;
 }
 .motion-ready .reveal-on-scroll.is-visible { opacity: 1; transform: none; }
 .motion-ready .reveal-on-scroll:nth-child(2) { transition-delay: 70ms; }
@@ -757,31 +782,15 @@ button {
    10. GALLERY / MASONRY
 --------------------------------------------------------------------- */
 .masonry { column-count: 4; column-gap: 1rem; }
-.masonry .item { break-inside: avoid; margin-bottom: 1rem; border-radius: var(--radius); background: linear-gradient(135deg, rgba(255,255,255,.035), rgba(255,255,255,.09), rgba(255,255,255,.035)); overflow: hidden; }
-.masonry .item.image-ready { background: transparent; }
+.masonry .item { break-inside: avoid; margin-bottom: 1rem; border-radius: var(--radius); background: rgba(255,255,255,.035); overflow: hidden; }
 .masonry img {
   width: 100%;
   margin-bottom: 0;
   border-radius: var(--radius);
-  transition: transform 0.3s var(--ease), opacity 0.45s var(--ease), filter 0.45s var(--ease);
-  opacity: 0.55;
-  filter: blur(5px);
+  transition: transform 0.3s var(--ease);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
-.masonry img.image-loaded { opacity: 1; filter: none; }
-.masonry img.image-failed { opacity: 1; filter: none; min-height: 180px; object-fit: contain; }
 .masonry img:hover { transform: translateY(-4px) scale(1.02); }
-
-.package-image-wrap img, .about-image img, .team-circle img,
-.gallery-masonry img, .image-wrapper img {
-  transition: opacity 0.45s var(--ease), filter 0.45s var(--ease), transform 0.45s var(--ease);
-}
-.package-image-wrap img:not(.image-loaded):not(.image-failed), .about-image img:not(.image-loaded):not(.image-failed),
-.team-circle img:not(.image-loaded):not(.image-failed), .gallery-masonry img:not(.image-loaded):not(.image-failed),
-.image-wrapper img:not(.image-loaded):not(.image-failed) { opacity: 0.62; filter: blur(4px); }
-.package-image-wrap img.image-loaded, .about-image img.image-loaded,
-.team-circle img.image-loaded, .gallery-masonry img.image-loaded,
-.image-wrapper img.image-loaded { opacity: 1; filter: none; }
 
 @media (max-width: 1200px) { .masonry { column-count: 3; } }
 @media (max-width: 768px)  { .masonry { column-count: 2; } }
@@ -799,6 +808,30 @@ button {
 .gallery-masonry { column-count: 5; column-gap: 14px; }
 @media (max-width: 992px) { .gallery-masonry { column-count: 3; } }
 @media (max-width: 480px) { .gallery-masonry { column-count: 2; } }
+
+/* Keep photo-heavy pages smooth on phones: one static, pre-sized hero;
+   native scrolling without large backdrop-filter surfaces or image filters. */
+@media (max-width: 576px) {
+  .bg-slide { filter: none; transition: none; }
+  .bg-overlay { background: linear-gradient(rgba(0,0,0,.68), rgba(0,0,0,.5), rgba(0,0,0,.72)); }
+  .navbar-inner,
+  .mobile-menu,
+  .glass-section .container,
+  .btn-primary,
+  .btn-book,
+  .btn-outline-light,
+  #modal-overlay,
+  .gallery-overlay,
+  .lightbox,
+  .notice-overlay,
+  .notice {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .glass-section .container { background: rgba(10,10,10,.78); }
+  .mobile-menu { background: rgba(10,10,10,.96); }
+  .masonry img, .gallery-masonry img { box-shadow: none; }
+}
 
 /* ---------------------------------------------------------------------
    10b. GALLERY MODAL — full portfolio, frosted, deep-linkable at /gallery
@@ -1049,8 +1082,6 @@ button {
 @media (max-width: 576px) {
   .contact-buttons, .cta-buttons { flex-direction: column; align-items: center; }
   .contact-buttons .btn, .cta-buttons .btn { width: 100%; max-width: 280px; }
-  .hero-actions { flex-direction: column; align-items: center; }
-  .hero-actions .btn { width: 100%; max-width: 290px; }
 }
 
 /* ---------------------------------------------------------------------
