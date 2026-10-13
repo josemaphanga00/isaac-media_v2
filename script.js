@@ -1012,9 +1012,7 @@
      BOOT
   ========================================================= */
   function init() {
-    // Critical for first paint / above-the-fold interaction
-    initScrollExperience();
-    initNavbar();
+    // Keep first-interaction controls available immediately.
     initMobileMenu();
     initHeroSlideshow();
     // Install controls immediately so modal links work even while the browser
@@ -1023,13 +1021,16 @@
     initLightbox();
     initGalleryModal();
 
-    // Can wait a tick — below-the-fold / non-blocking
-    runWhenIdle(() => {
-      initEventSlideshows();
-      initStaticForms();
-      initAccordion();
-      initReviews();
-    });
+    // Keep independent page setup in separate idle tasks. Running all of
+    // these initializers in one callback can create a long task on phones.
+    [
+      initScrollExperience,
+      initNavbar,
+      initEventSlideshows,
+      initStaticForms,
+      initAccordion,
+      initReviews,
+    ].forEach((setup) => runWhenIdle(setup));
   }
 
   if (document.readyState === 'loading') {
