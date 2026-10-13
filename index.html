@@ -79,6 +79,9 @@
 
 <body>
 
+  <a class="skip-link" href="#page-top">Skip to content</a>
+  <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+
   <!-- ============ FIXED SITE-WIDE BACKGROUND ============ -->
   <div class="bg-slideshow" id="bg-slideshow" aria-hidden="true"></div>
   <div class="bg-overlay" aria-hidden="true"></div>
@@ -95,7 +98,7 @@
         <a href="#faq">FAQ</a>
         <a href="#team">Team</a>
         <a href="#contact">Contact</a>
-        <a href="/booking" class="btn btn-book nav-book-btn" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</a>
+        <a href="?modal=booking" class="btn btn-book nav-book-btn" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</a>
       </nav>
 
       <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
@@ -112,7 +115,7 @@
       <a href="#faq">FAQ</a>
       <a href="#team">Team</a>
       <a href="#contact">Contact</a>
-      <a href="/booking" class="btn btn-book" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</a>
+      <a href="?modal=booking" class="btn btn-book" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</a>
     </nav>
   </div>
 
@@ -126,6 +129,10 @@
         <p class="hero-tagline">We specialise in Photography and videography for weddings, families, celebrations, professionals and brands.</p>
         <p class="hero-location">Based in Pretoria, South Africa</p>
         <p class="hero-availability">Available nationwide and internationally</p>
+        <div class="hero-actions">
+          <a href="?modal=booking" class="btn btn-book btn-xl" data-modal="booking">Plan Your Session <span aria-hidden="true">↗</span></a>
+          <a href="#gallery" class="btn btn-outline-light btn-xl">Explore the Work <span aria-hidden="true">↓</span></a>
+        </div>
         <div class="scroll-indicator" aria-hidden="true"></div>
       </div>
     </section>
@@ -365,8 +372,8 @@
         <h2>Get in Touch</h2>
         <p class="section-subheading">Choose how you'd like to get started</p>
         <div class="contact-buttons">
-          <a href="/booking" class="btn btn-book btn-xl" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</a>
-          <a href="/inquiry" class="btn btn-outline-light btn-xl" data-modal="inquiry"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask a Question</a>
+          <a href="?modal=booking" class="btn btn-book btn-xl" data-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book a Session</a>
+          <a href="?modal=inquiry" class="btn btn-outline-light btn-xl" data-modal="inquiry"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask a Question</a>
         </div>
       </div>
     </section>
@@ -420,7 +427,7 @@
 
   <!-- ============ MODAL OVERLAY (reusable) ============ -->
   <div class="modal-overlay" id="modal-overlay" hidden>
-    <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
       <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
       <div class="modal-content" id="modal-content"></div>
     </div>

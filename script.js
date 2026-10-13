@@ -28,6 +28,54 @@
     }, { passive: true });
   }
 
+  function initScrollExperience() {
+    const progress = document.getElementById('reading-progress');
+    const updateProgress = () => {
+      if (!progress) return;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+    };
+    onScroll(updateProgress);
+    updateProgress();
+
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) return;
+    const targets = document.querySelectorAll('.glass-section, .footer, .package-card, .event-slideshow');
+    if (!targets.length) return;
+    document.body.classList.add('motion-ready');
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        currentObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -56px 0px', threshold: 0.08 });
+    targets.forEach((target) => {
+      target.classList.add('reveal-on-scroll');
+      observer.observe(target);
+    });
+  }
+
+  function initImageLoadingStates() {
+    const setState = (img) => {
+      const loaded = img.naturalWidth > 0;
+      img.classList.add(loaded ? 'image-loaded' : 'image-failed');
+      const masonryItem = img.closest('.masonry .item');
+      if (masonryItem) masonryItem.classList.add('image-ready');
+    };
+
+    // Capture load/error because those events do not bubble; this also
+    // covers images inserted later by package/about modal templates.
+    document.addEventListener('load', (event) => {
+      if (event.target instanceof HTMLImageElement) setState(event.target);
+    }, true);
+    document.addEventListener('error', (event) => {
+      if (event.target instanceof HTMLImageElement) setState(event.target);
+    }, true);
+    document.querySelectorAll('img').forEach((img) => {
+      if (img.complete) setState(img);
+    });
+  }
+
   function debounce(fn, wait = 150) {
     let t;
     return (...args) => {
@@ -52,13 +100,21 @@
        the page, then reappears the moment you start scrolling back up
        — you never have to scroll all the way to the top to find it. */
     let lastY = window.scrollY;
+    let directionDistance = 0;
     onScroll(() => {
       const y = window.scrollY;
       navbar.classList.toggle('navbar-shrink', y > 8);
 
-      const scrollingDown = y > lastY;
       const pastThreshold = y > 120;
-      navbar.classList.toggle('navbar--hidden', scrollingDown && pastThreshold);
+      const delta = y - lastY;
+      directionDistance = Math.sign(delta) === Math.sign(directionDistance) ? directionDistance + delta : delta;
+      if (!pastThreshold) {
+        navbar.classList.remove('navbar--hidden');
+        directionDistance = 0;
+      } else if (Math.abs(directionDistance) >= 12) {
+        navbar.classList.toggle('navbar--hidden', directionDistance > 0);
+        directionDistance = 0;
+      }
       lastY = y;
     });
 
@@ -172,11 +228,19 @@
       container.appendChild(div);
       return div;
     });
-    slides[0].classList.add('active');
+    let current = 0;
+    const activateFirst = () => {
+      if (current === 0) slides[0].classList.add('active');
+    };
+    const firstImage = new Image();
+    firstImage.decoding = 'async';
+    firstImage.onload = activateFirst;
+    firstImage.onerror = activateFirst;
+    firstImage.src = images[0];
+    if (firstImage.complete) activateFirst();
 
     if (prefersReducedMotion) return; // static first frame only, no timers at all
 
-    let current = 0;
     let timer = null;
     let visible = !document.hidden;
 
@@ -188,6 +252,15 @@
 
     const goTo = (i) => {
       load(i);
+      const backgroundImage = new Image();
+      backgroundImage.decoding = 'async';
+      backgroundImage.onload = () => activateSlide(i);
+      backgroundImage.onerror = () => activateSlide(i);
+      backgroundImage.src = images[i];
+      if (backgroundImage.complete) activateSlide(i);
+    };
+
+    const activateSlide = (i) => {
       slides[current].classList.remove('active');
       slides[i].classList.add('active');
       current = i;
@@ -251,16 +324,6 @@
     });
   }
 
-  /* =========================================================
-     GALLERY MODAL — the full portfolio, opened from "View Portfolio".
-     Deep-linkable at /gallery: pushState on open so it's a real,
-     shareable/indexable URL, popstate handles back/forward, and a
-     direct visit to /gallery opens it straight away. (Note: for a
-     hard reload or a crawler's first hit on /gallery to actually
-     render this page rather than 404, the host needs to serve
-     index.html for that path — an SPA-style rewrite rule. Ask if you
-     want help wiring that up for your specific host.)
-  ========================================================= */
   const GALLERY_PATH = '/gallery';
   const DEFAULT_TITLE = document.title;
 
@@ -284,7 +347,7 @@
     document.body.style.overflow = '';
     setTimeout(() => { overlay.hidden = true; }, 300);
     if (pushUrl && location.pathname === GALLERY_PATH) {
-      history.pushState({}, '', '/');
+      history.replaceState({}, '', '/');
     }
     document.title = DEFAULT_TITLE;
   }
@@ -295,39 +358,34 @@
     const closeBtn = document.getElementById('gallery-close');
     if (!overlay || !trigger) return;
 
-    trigger.addEventListener('click', (e) => {
-      e.preventDefault(); // real href="/gallery" stays for crawlers/no-JS; JS intercepts for the SPA modal
+    trigger.addEventListener('click', (event) => {
+      event.preventDefault();
       openGalleryModal();
     });
     closeBtn?.addEventListener('click', () => closeGalleryModal());
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeGalleryModal(); });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !overlay.hidden) closeGalleryModal();
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closeGalleryModal();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !overlay.hidden) closeGalleryModal();
     });
     window.addEventListener('popstate', () => {
       if (location.pathname === GALLERY_PATH) openGalleryModal(false);
       else closeGalleryModal(false);
     });
-
-    // Direct visit to /gallery opens the modal immediately
     if (location.pathname === GALLERY_PATH) openGalleryModal(false);
   }
 
   /* =========================================================
-     MODAL SYSTEM — single reusable overlay, real content, delegated triggers
-     Each modal now has its own real, indexable route (deep-linkable via
-     pushState, same pattern as the gallery). This also matters for
-     accessibility: triggers are real <a href> elements now, not bare
-     buttons with no destination, so a screen reader or crawler can tell
-     where each one actually goes.
+    MODAL SYSTEM — quick booking and inquiry forms, with direct-link support
   ========================================================= */
   const MODAL_ROUTES = {
-    about:    { path: '/about',              title: 'About | ISAAC MEDIA' },
-    booking:  { path: '/booking',            title: 'Book a Session | ISAAC MEDIA' },
-    inquiry:  { path: '/inquiry',            title: 'Ask a Question | ISAAC MEDIA' },
-    package1: { path: '/packages/starter',   title: 'Starter Package | ISAAC MEDIA' },
-    package2: { path: '/packages/standard',  title: 'Standard Package | ISAAC MEDIA' },
-    package3: { path: '/packages/premium',   title: 'Premium Package | ISAAC MEDIA' },
+    about:    { path: '/about', title: 'About | ISAAC MEDIA' },
+    booking:  { path: '/booking', title: 'Book a Session | ISAAC MEDIA' },
+    inquiry:  { path: '/inquiry', title: 'Ask a Question | ISAAC MEDIA' },
+    package1: { path: '/packages/starter', title: 'Starter Package | ISAAC MEDIA' },
+    package2: { path: '/packages/standard', title: 'Standard Package | ISAAC MEDIA' },
+    package3: { path: '/packages/premium', title: 'Premium Package | ISAAC MEDIA' },
   };
   const PATH_TO_MODAL_KEY = Object.fromEntries(
     Object.entries(MODAL_ROUTES).map(([key, route]) => [route.path, key])
@@ -392,27 +450,19 @@
       <p class="about-text">With over 10 years of experience in videography, 4 years in video editing, and 4 years in professional photography, Isaac brings a unique storytelling approach shaped by his journey behind the camera.</p>
       <p class="about-text">Isaac Media specializes in wedding, lifestyle, event, and family photography, creating timeless visuals that reflect genuine emotion, connection, and detail.</p>
       <p class="about-text">Founded in August 2022, the brand was built on a long-standing passion that began at the age of 16 while serving in the church media department.</p>
-      <div class="modal-btn-group">
-        <button class="btn btn-primary btn-xl text-uppercase" data-close>Close About</button>
-      </div>
+      <div class="modal-btn-group"><button class="btn btn-primary btn-xl text-uppercase" data-close>Close About</button></div>
     `,
     package1: () => packageTemplate({
-      title: 'Starter', price: 'R9,000',
-      tagline: 'Perfect for intimate moments and smaller celebrations.',
-      img: 'assets/img/package-img/msiza.webp',
-      items: ['9 Hours of Photography', '1 Photographer', 'Professional Editing', '300+ High-Resolution Photos', 'Digital Delivery'],
+      title: 'Starter', price: 'R9,000', tagline: 'Perfect for intimate moments and smaller celebrations.',
+      img: 'assets/img/package-img/msiza.webp', items: ['9 Hours of Photography', '1 Photographer', 'Professional Editing', '300+ High-Resolution Photos', 'Digital Delivery'],
     }),
     package2: () => packageTemplate({
-      title: 'Standard', price: 'R15,500',
-      tagline: 'For fuller, more memorable experience.',
-      img: 'assets/img/package-img/is3.webp',
-      items: ['Complimentary Engagement Shoot', '9 Hours of Photography', '1 Photographer', '300+ High-Resolution Photos', 'Digital Delivery', '40-Page Photobook'],
+      title: 'Standard', price: 'R15,500', tagline: 'For a fuller, more memorable experience.',
+      img: 'assets/img/package-img/is3.webp', items: ['Complimentary Engagement Shoot', '9 Hours of Photography', '1 Photographer', '300+ High-Resolution Photos', 'Digital Delivery', '40-Page Photobook'],
     }),
     package3: () => packageTemplate({
-      title: 'Premium', price: 'R23,500',
-      tagline: 'For clients who want everything captured and preserved beautifully.',
-      img: 'assets/img/package-img/sandrasabelo.webp',
-      items: ['Complimentary Engagement Shoot', '1 Hour Bridal Shower Coverage', '9 Hours of Photography', '1 Photographer', 'Professional Editing', '300+ High-Resolution Photos', '5-Minute Highlight Video', 'Digital Delivery + Online Gallery', '40-Page Photobook'],
+      title: 'Premium', price: 'R23,500', tagline: 'For clients who want everything captured and preserved beautifully.',
+      img: 'assets/img/package-img/sandrasabelo.webp', items: ['Complimentary Engagement Shoot', '1 Hour Bridal Shower Coverage', '9 Hours of Photography', '1 Photographer', 'Professional Editing', '300+ High-Resolution Photos', '5-Minute Highlight Video', 'Digital Delivery + Online Gallery', '40-Page Photobook'],
     }),
   };
 
@@ -420,15 +470,13 @@
     return `
       <h2 class="text-uppercase">${title}</h2>
       <p class="item-intro text-muted">Isaac Media</p>
-      <div class="image-wrapper image-wrapper--portrait">
-        <img class="img-fluid d-block mx-auto" src="${img}" alt="${title} package" loading="lazy" decoding="async">
-      </div>
+      <div class="image-wrapper image-wrapper--portrait"><img class="img-fluid d-block mx-auto" src="${img}" alt="${title} package" loading="lazy" decoding="async"></div>
       <h5>${tagline}</h5>
-      <ul class="list-inline">${items.map((i) => `<li>${i}</li>`).join('')}</ul>
+      <ul class="list-inline">${items.map((item) => `<li>${item}</li>`).join('')}</ul>
       <h5>${price}</h5>
       <div class="modal-btn-group">
-        <a href="/booking" class="btn btn-book btn-xl text-uppercase" data-open-modal="booking"><svg class="btn-icon icon-leading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>Book Session</a>
-        <button class="btn btn-primary btn-xl text-uppercase" data-whatsapp>Enquire More<svg class="btn-icon icon-trailing" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.05-1.36A10 10 0 1 0 12 2zm0 18.2a8.15 8.15 0 0 1-4.16-1.14l-.3-.18-3.1.84.83-3.02-.2-.31A8.2 8.2 0 1 1 12 20.2zm4.5-6.13c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.78.95-.14.16-.28.18-.53.06-.24-.12-1.02-.38-1.95-1.21-.72-.64-1.2-1.44-1.35-1.68-.14-.24-.02-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.8-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z"/></svg></button>
+        <a href="/booking" class="btn btn-book btn-xl text-uppercase" data-open-modal="booking">Book Session</a>
+        <button class="btn btn-primary btn-xl text-uppercase" data-whatsapp>Enquire More</button>
       </div>
     `;
   }
@@ -441,12 +489,14 @@
 
     let lastFocused = null;
     let currentKey = null;
+    let returnUrl = null;
 
     function open(key, pushUrl = true) {
       const build = modalTemplates[key];
       if (!build) return;
       lastFocused = document.activeElement;
       content.innerHTML = build();
+      content.querySelector('h2')?.setAttribute('id', 'modal-heading');
       content.classList.remove('modal-content--enter');
       void content.offsetWidth; // force reflow so the animation replays every open, not just the first
       content.classList.add('modal-content--enter');
@@ -456,11 +506,19 @@
       document.body.style.overflow = 'hidden';
       closeBtn.focus();
       bindFormsIn(content);
+      if (key === 'booking') {
+        const requestedPackage = new URLSearchParams(location.search).get('package');
+        const packageSelect = content.querySelector('[name="weddingPackage"]');
+        if (requestedPackage && [...(packageSelect?.options || [])].some((option) => option.value === requestedPackage)) {
+          packageSelect.value = requestedPackage;
+        }
+      }
 
       currentKey = key;
       const route = MODAL_ROUTES[key];
       if (route) {
         if (pushUrl && location.pathname !== route.path) {
+          returnUrl = location.href;
           history.pushState({ modal: key }, '', route.path);
         }
         document.title = route.title;
@@ -478,7 +536,13 @@
 
       const route = currentKey && MODAL_ROUTES[currentKey];
       if (pushUrl && route && location.pathname === route.path) {
-        history.pushState({}, '', '/');
+        history.replaceState({}, '', returnUrl || '/');
+        returnUrl = null;
+      } else if (pushUrl && new URLSearchParams(location.search).has('modal')) {
+        const url = new URL(location.href);
+        url.searchParams.delete('modal');
+        url.searchParams.delete('package');
+        history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
       }
       document.title = DEFAULT_TITLE;
       currentKey = null;
@@ -502,17 +566,31 @@
     closeBtn.addEventListener('click', () => close());
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !overlay.hidden) close();
+      if (overlay.hidden) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'Tab') {
+        const focusable = [...overlay.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])')];
+        const first = focusable[0];
+        const last = focusable.at(-1);
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first?.focus();
+        }
+      }
     });
 
     window.addEventListener('popstate', () => {
-      const key = PATH_TO_MODAL_KEY[location.pathname];
+      const key = PATH_TO_MODAL_KEY[location.pathname]
+        || new URLSearchParams(location.search).get('modal');
       if (key) open(key, false);
       else if (currentKey) close(false);
     });
 
-    // Direct visit or reload on one of these routes opens the matching modal
-    const initialKey = PATH_TO_MODAL_KEY[location.pathname];
+    // Direct query-string links work without server-side route rewrites.
+    const requestedModal = new URLSearchParams(location.search).get('modal');
+    const initialKey = PATH_TO_MODAL_KEY[location.pathname]
+      || (modalTemplates[requestedModal] ? requestedModal : null);
     if (initialKey) open(initialKey, false);
   }
 
@@ -643,16 +721,8 @@
      Visit /?reviews=preview to see the layout with clearly-labelled
      sample cards (never shown to normal visitors).
   --------------------------------------------------------------- */
-  const REVIEWS = [
-    // DRAFT copy carried over from your first mock-up — swap these for real
-    // client reviews (name, meta, rating, text) before launch.
-    { name: "Sarah & John", meta: "Wedding", rating: 5, text: "ISAAC MEDIA captured our wedding beautifully. Every moment was perfect." },
-    { name: "Emily & Michael", meta: "Wedding", rating: 5, text: "Professional, creative, and a joy to work with. The photos exceeded our expectations." },
-    { name: "Jessica & David", meta: "Wedding", rating: 5, text: "Absolutely stunning work! The team made us feel so comfortable." },
-    { name: "Thabo & Lerato", meta: "Wedding", rating: 5, text: "From the first call to the final gallery, everything felt effortless. We still look at our photos every week." },
-    { name: "Naledi M.", meta: "Birthday Shoot", rating: 5, text: "Isaac made me feel confident in front of the camera. The edits were clean, bold and delivered fast." },
-    { name: "Kagiso & Palesa", meta: "Engagement", rating: 5, text: "Relaxed, creative and so easy to work with. Every frame feels like us." },
-  ];
+  // Keep the section hidden until verified client reviews are approved for publication.
+  const REVIEWS = [];
   const PREVIEW_REVIEWS = [1, 2, 3, 4].map((n) => ({
     name: "Sample Client " + n, meta: "Preview only", rating: 5,
     text: "Sample review text for layout preview. Replace with a real client review."
@@ -769,9 +839,11 @@
 
     let gallery = [];
     let index = 0;
+    let returnFocus = null;
+    const portfolioImages = '.page-gallery img, .gallery-masonry img';
 
     const refreshGallery = () => {
-      gallery = [...document.querySelectorAll('.gallery-masonry img')];
+      gallery = [...document.querySelectorAll(portfolioImages)];
     };
 
     const show = (i) => {
@@ -784,14 +856,21 @@
     const open = (i) => {
       refreshGallery();
       show(i);
+      returnFocus = gallery[i];
       lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('lightboxClose')?.focus();
     };
-    const close = () => lightbox.classList.remove('active');
+    const close = () => {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+      returnFocus?.focus();
+    };
 
     // Delegated — only images inside the gallery modal are clickable;
     // the main-page preview grid is hover-only (see .masonry img in CSS)
     document.addEventListener('click', (e) => {
-      const img = e.target.closest('.gallery-masonry img');
+      const img = e.target.closest(portfolioImages);
       if (!img) return;
       refreshGallery();
       open(gallery.indexOf(img));
@@ -807,6 +886,14 @@
       if (e.key === 'Escape') close();
       if (e.key === 'ArrowRight') show(index + 1);
       if (e.key === 'ArrowLeft') show(index - 1);
+      if (e.key === 'Tab') {
+        const controls = [...lightbox.querySelectorAll('button')];
+        if (e.shiftKey && document.activeElement === controls[0]) {
+          e.preventDefault(); controls.at(-1)?.focus();
+        } else if (!e.shiftKey && document.activeElement === controls.at(-1)) {
+          e.preventDefault(); controls[0]?.focus();
+        }
+      }
     });
   }
 
@@ -815,6 +902,8 @@
   ========================================================= */
   function init() {
     // Critical for first paint / above-the-fold interaction
+    initImageLoadingStates();
+    initScrollExperience();
     initNavbar();
     initMobileMenu();
     initHeroSlideshow();
