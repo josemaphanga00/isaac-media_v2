@@ -85,7 +85,13 @@
   }
 
   // Run non-critical setup when the browser is idle, with a safe fallback
-  const runWhenIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+  const runWhenIdle = (callback) => {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(callback, { timeout: 1500 });
+    } else {
+      window.setTimeout(callback, 1);
+    }
+  };
 
   /* =========================================================
      NAVBAR — shrink on scroll + active-link highlight via IO
@@ -1009,16 +1015,18 @@
     initNavbar();
     initMobileMenu();
     initHeroSlideshow();
+    // Install controls immediately so modal links work even while the browser
+    // is busy and has not run its idle callbacks yet.
+    initModals();
+    initLightbox();
+    initGalleryModal();
 
     // Can wait a tick — below-the-fold / non-blocking
     runWhenIdle(() => {
       initEventSlideshows();
-      initModals();
       initStaticForms();
       initAccordion();
       initReviews();
-      initLightbox();
-      initGalleryModal();
     });
   }
 
