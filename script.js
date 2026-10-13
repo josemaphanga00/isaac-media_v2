@@ -231,7 +231,6 @@
       container.appendChild(firstSlide);
       slides.push(firstSlide);
     }
-    slides[0].style.backgroundImage = `url('${images[0]}')`;
     while (slides.length < images.length) {
       const div = document.createElement('div');
       div.className = 'bg-slide';
@@ -249,6 +248,9 @@
     let visible = !document.hidden;
 
     const load = (i) => {
+      // The first frame is a responsive <picture> in the HTML, which also
+      // lets Lighthouse measure it as the page's LCP image.
+      if (i === 0 && slides[0].querySelector('img')) return;
       if (!slides[i].style.backgroundImage) {
         slides[i].style.backgroundImage = `url('${images[i]}')`;
       }

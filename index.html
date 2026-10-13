@@ -84,7 +84,14 @@
   <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
 
   <!-- ============ FIXED SITE-WIDE BACKGROUND ============ -->
-  <div class="bg-slideshow" id="bg-slideshow" aria-hidden="true"><div class="bg-slide active"></div></div>
+  <div class="bg-slideshow" id="bg-slideshow" aria-hidden="true">
+    <div class="bg-slide active">
+      <picture class="bg-slide-picture">
+        <source media="(max-width: 576px)" srcset="assets/img/mobile/hero.webp" type="image/webp" />
+        <img class="bg-slide-image" src="assets/img/hero-section/hero_sabelo.webp" width="1600" height="1201" alt="" fetchpriority="high" decoding="async" />
+      </picture>
+    </div>
+  </div>
   <div class="bg-overlay" aria-hidden="true"></div>
 
   <!-- ============ ISLAND NAVBAR ============ -->
