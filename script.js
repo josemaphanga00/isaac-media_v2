@@ -222,13 +222,22 @@
     const isMobile = window.matchMedia('(max-width: 576px)').matches || navigator.connection?.saveData;
     const images = isMobile ? ['assets/img/mobile/hero.webp'] : desktopImages;
 
-    const slides = images.map((src, i) => {
+    // The first slide is in the HTML/CSS so the hero can paint before this
+    // deferred script runs. Reuse it, then create only the later slides.
+    const slides = [...container.querySelectorAll('.bg-slide')];
+    if (!slides.length) {
+      const firstSlide = document.createElement('div');
+      firstSlide.className = 'bg-slide active';
+      container.appendChild(firstSlide);
+      slides.push(firstSlide);
+    }
+    slides[0].style.backgroundImage = `url('${images[0]}')`;
+    while (slides.length < images.length) {
       const div = document.createElement('div');
       div.className = 'bg-slide';
-      if (i === 0) div.style.backgroundImage = `url('${src}')`;
       container.appendChild(div);
-      return div;
-    });
+      slides.push(div);
+    }
     let current = 0;
     slides[0].classList.add('active');
 
