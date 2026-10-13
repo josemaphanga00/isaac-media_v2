@@ -277,15 +277,20 @@
       </div>
     </section>
 
-    <!-- ============ FAQ ============ -->
-    <!-- ===== REVIEWS (hidden until script.js finds real reviews in REVIEWS) ===== -->
-    <section id="reviews" class="glass-section" hidden>
+    <!-- ============ CLIENT REVIEWS ============ -->
+    <section id="reviews" class="glass-section">
       <div class="container">
         <div class="text-center">
           <h2>Kind Words</h2>
-          <p class="section-subheading">Isaac Media</p>
+          <p class="section-subheading">Stories from the people we photograph</p>
         </div>
-        <div class="reviews-carousel" role="region" aria-roledescription="carousel" aria-label="Client reviews">
+        <div class="reviews-empty-state" id="reviews-empty-state">
+          <span class="reviews-empty-mark" aria-hidden="true">“</span>
+          <h3>Every story deserves to be told.</h3>
+          <p>We’re gathering kind words from our clients. If we’ve photographed a special moment for you, we’d love to hear about your experience.</p>
+          <a class="btn btn-outline-light" href="https://wa.me/27767308994?text=I%27d%20love%20to%20share%20feedback%20about%20my%20experience%20with%20ISAAC%20MEDIA" target="_blank" rel="noopener">Share your experience</a>
+        </div>
+        <div class="reviews-carousel" role="region" aria-roledescription="carousel" aria-label="Client reviews" hidden>
           <button type="button" class="reviews-nav reviews-nav--prev" aria-label="Previous review" data-reviews-prev>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
           </button>
@@ -294,13 +299,14 @@
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
           </button>
         </div>
-        <div class="reviews-dots" id="reviews-dots" role="tablist" aria-label="Choose review page"></div>
-        <div class="text-center reviews-more">
-          <a class="btn btn-outline-light" href="#" id="more-reviews">More Reviews</a>
+        <div class="reviews-dots" id="reviews-dots" role="tablist" aria-label="Choose review page" hidden></div>
+        <div class="text-center reviews-more" hidden>
+          <a class="btn btn-outline-light" href="https://wa.me/27767308994" target="_blank" rel="noopener" id="more-reviews">More Reviews</a>
         </div>
       </div>
     </section>
 
+    <!-- ============ FAQ ============ -->
     <section id="faq" class="glass-section">
       <div class="container">
         <div class="text-center">
@@ -445,78 +451,78 @@
     </div>
     <div class="gallery-overlay-scroll">
       <div class="gallery-masonry">
-        <img src="assets/img/compress_gallery/DSC02143.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/DSC03020.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/cater11.webp" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/cater12.webp" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/dp1.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/dp2.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/dp2-1.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/DSC03026.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/DSC02171.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/DSC02178.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/DSC02224.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/DSC03017.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/DSC03041.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/bilankulu.webp" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/bilankulu1.webp" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/bilankulu1-1.webp" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/cater6.webp" loading="lazy" decoding="async" alt="Catering event photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/cater10.webp" loading="lazy" decoding="async" alt="Catering event photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/dp3.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/dp4.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/dp5.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/dp6.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/dp7.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/dp8.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/is.webp" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/is1.webp" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/is2.webp" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/is3.webp" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/is4.webp" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/kekana.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/kekana2.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/kekana3.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/kekana4.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/kekana5.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/msiza.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/msiza1.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/msiza2.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/msiza2-1.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/msiza3.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/msiza5.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/r1.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/r2.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/rings.webp" loading="lazy" decoding="async" alt="Wedding rings close-up by Isaac Media" />
-        <img src="assets/img/compress_gallery/rr.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/sandy.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/sandy2.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/sandy3.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/sandy4.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/sandy5.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/sandy6.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/sandy7.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/sandy8.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/shabangu.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/shoe1.webp" loading="lazy" decoding="async" alt="Wedding shoe detail photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss1.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss2.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss3.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss4.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss5.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss6.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss7.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss8.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ss10.webp" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/vh1.webp" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/vh2.webp" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/vh3.webp" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/vh4.webp" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/w.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/w1.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/w2.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
-        <img src="assets/img/compress_gallery/ww.webp" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/DSC02143.webp" srcset="assets/img/gallery-sm/DSC02143.webp 480w, assets/img/compress_gallery/DSC02143.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/DSC03020.webp" srcset="assets/img/gallery-sm/DSC03020.webp 480w, assets/img/compress_gallery/DSC03020.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/cater11.webp" srcset="assets/img/gallery-sm/cater11.webp 480w, assets/img/compress_gallery/cater11.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/cater12.webp" srcset="assets/img/gallery-sm/cater12.webp 480w, assets/img/compress_gallery/cater12.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/dp1.webp" srcset="assets/img/gallery-sm/dp1.webp 480w, assets/img/compress_gallery/dp1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/dp2.webp" srcset="assets/img/gallery-sm/dp2.webp 480w, assets/img/compress_gallery/dp2.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/dp2-1.webp" srcset="assets/img/gallery-sm/dp2-1.webp 480w, assets/img/compress_gallery/dp2-1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/DSC03026.webp" srcset="assets/img/gallery-sm/DSC03026.webp 480w, assets/img/compress_gallery/DSC03026.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/DSC02171.webp" srcset="assets/img/gallery-sm/DSC02171.webp 480w, assets/img/compress_gallery/DSC02171.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/DSC02178.webp" srcset="assets/img/gallery-sm/DSC02178.webp 480w, assets/img/compress_gallery/DSC02178.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/DSC02224.webp" srcset="assets/img/gallery-sm/DSC02224.webp 480w, assets/img/compress_gallery/DSC02224.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/DSC03017.webp" srcset="assets/img/gallery-sm/DSC03017.webp 480w, assets/img/compress_gallery/DSC03017.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/DSC03041.webp" srcset="assets/img/gallery-sm/DSC03041.webp 480w, assets/img/compress_gallery/DSC03041.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/bilankulu.webp" srcset="assets/img/gallery-sm/bilankulu.webp 480w, assets/img/compress_gallery/bilankulu.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/bilankulu1.webp" srcset="assets/img/gallery-sm/bilankulu1.webp 480w, assets/img/compress_gallery/bilankulu1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/bilankulu1-1.webp" srcset="assets/img/gallery-sm/bilankulu1-1.webp 480w, assets/img/compress_gallery/bilankulu1-1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Event photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/cater6.webp" srcset="assets/img/gallery-sm/cater6.webp 480w, assets/img/compress_gallery/cater6.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Catering event photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/cater10.webp" srcset="assets/img/gallery-sm/cater10.webp 480w, assets/img/compress_gallery/cater10.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Catering event photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/dp3.webp" srcset="assets/img/gallery-sm/dp3.webp 480w, assets/img/compress_gallery/dp3.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/dp4.webp" srcset="assets/img/gallery-sm/dp4.webp 480w, assets/img/compress_gallery/dp4.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/dp5.webp" srcset="assets/img/gallery-sm/dp5.webp 480w, assets/img/compress_gallery/dp5.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/dp6.webp" srcset="assets/img/gallery-sm/dp6.webp 480w, assets/img/compress_gallery/dp6.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/dp7.webp" srcset="assets/img/gallery-sm/dp7.webp 480w, assets/img/compress_gallery/dp7.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/dp8.webp" srcset="assets/img/gallery-sm/dp8.webp 480w, assets/img/compress_gallery/dp8.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/is.webp" srcset="assets/img/gallery-sm/is.webp 480w, assets/img/compress_gallery/is.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/is1.webp" srcset="assets/img/gallery-sm/is1.webp 480w, assets/img/compress_gallery/is1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/is2.webp" srcset="assets/img/gallery-sm/is2.webp 480w, assets/img/compress_gallery/is2.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/is3.webp" srcset="assets/img/gallery-sm/is3.webp 480w, assets/img/compress_gallery/is3.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/is4.webp" srcset="assets/img/gallery-sm/is4.webp 480w, assets/img/compress_gallery/is4.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/kekana.webp" srcset="assets/img/gallery-sm/kekana.webp 480w, assets/img/compress_gallery/kekana.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/kekana2.webp" srcset="assets/img/gallery-sm/kekana2.webp 480w, assets/img/compress_gallery/kekana2.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/kekana3.webp" srcset="assets/img/gallery-sm/kekana3.webp 480w, assets/img/compress_gallery/kekana3.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/kekana4.webp" srcset="assets/img/gallery-sm/kekana4.webp 480w, assets/img/compress_gallery/kekana4.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/kekana5.webp" srcset="assets/img/gallery-sm/kekana5.webp 480w, assets/img/compress_gallery/kekana5.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/msiza.webp" srcset="assets/img/gallery-sm/msiza.webp 480w, assets/img/compress_gallery/msiza.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/msiza1.webp" srcset="assets/img/gallery-sm/msiza1.webp 480w, assets/img/compress_gallery/msiza1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/msiza2.webp" srcset="assets/img/gallery-sm/msiza2.webp 480w, assets/img/compress_gallery/msiza2.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/msiza2-1.webp" srcset="assets/img/gallery-sm/msiza2-1.webp 480w, assets/img/compress_gallery/msiza2-1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/msiza3.webp" srcset="assets/img/gallery-sm/msiza3.webp 480w, assets/img/compress_gallery/msiza3.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/msiza5.webp" srcset="assets/img/gallery-sm/msiza5.webp 480w, assets/img/compress_gallery/msiza5.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/r1.webp" srcset="assets/img/gallery-sm/r1.webp 480w, assets/img/compress_gallery/r1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/r2.webp" srcset="assets/img/gallery-sm/r2.webp 480w, assets/img/compress_gallery/r2.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/rings.webp" srcset="assets/img/gallery-sm/rings.webp 480w, assets/img/compress_gallery/rings.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding rings close-up by Isaac Media" />
+        <img src="assets/img/compress_gallery/rr.webp" srcset="assets/img/gallery-sm/rr.webp 480w, assets/img/compress_gallery/rr.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/sandy.webp" srcset="assets/img/gallery-sm/sandy.webp 480w, assets/img/compress_gallery/sandy.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/sandy2.webp" srcset="assets/img/gallery-sm/sandy2.webp 480w, assets/img/compress_gallery/sandy2.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/sandy3.webp" srcset="assets/img/gallery-sm/sandy3.webp 480w, assets/img/compress_gallery/sandy3.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/sandy4.webp" srcset="assets/img/gallery-sm/sandy4.webp 480w, assets/img/compress_gallery/sandy4.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/sandy5.webp" srcset="assets/img/gallery-sm/sandy5.webp 480w, assets/img/compress_gallery/sandy5.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/sandy6.webp" srcset="assets/img/gallery-sm/sandy6.webp 480w, assets/img/compress_gallery/sandy6.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/sandy7.webp" srcset="assets/img/gallery-sm/sandy7.webp 480w, assets/img/compress_gallery/sandy7.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/sandy8.webp" srcset="assets/img/gallery-sm/sandy8.webp 480w, assets/img/compress_gallery/sandy8.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/shabangu.webp" srcset="assets/img/gallery-sm/shabangu.webp 480w, assets/img/compress_gallery/shabangu.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/shoe1.webp" srcset="assets/img/gallery-sm/shoe1.webp 480w, assets/img/compress_gallery/shoe1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding shoe detail photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss.webp" srcset="assets/img/gallery-sm/ss.webp 480w, assets/img/compress_gallery/ss.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss1.webp" srcset="assets/img/gallery-sm/ss1.webp 480w, assets/img/compress_gallery/ss1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss2.webp" srcset="assets/img/gallery-sm/ss2.webp 480w, assets/img/compress_gallery/ss2.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss3.webp" srcset="assets/img/gallery-sm/ss3.webp 480w, assets/img/compress_gallery/ss3.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss4.webp" srcset="assets/img/gallery-sm/ss4.webp 480w, assets/img/compress_gallery/ss4.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss5.webp" srcset="assets/img/gallery-sm/ss5.webp 480w, assets/img/compress_gallery/ss5.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss6.webp" srcset="assets/img/gallery-sm/ss6.webp 480w, assets/img/compress_gallery/ss6.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss7.webp" srcset="assets/img/gallery-sm/ss7.webp 480w, assets/img/compress_gallery/ss7.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss8.webp" srcset="assets/img/gallery-sm/ss8.webp 480w, assets/img/compress_gallery/ss8.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ss10.webp" srcset="assets/img/gallery-sm/ss10.webp 480w, assets/img/compress_gallery/ss10.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/vh1.webp" srcset="assets/img/gallery-sm/vh1.webp 480w, assets/img/compress_gallery/vh1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/vh2.webp" srcset="assets/img/gallery-sm/vh2.webp 480w, assets/img/compress_gallery/vh2.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/vh3.webp" srcset="assets/img/gallery-sm/vh3.webp 480w, assets/img/compress_gallery/vh3.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/vh4.webp" srcset="assets/img/gallery-sm/vh4.webp 480w, assets/img/compress_gallery/vh4.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Portrait photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/w.webp" srcset="assets/img/gallery-sm/w.webp 480w, assets/img/compress_gallery/w.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/w1.webp" srcset="assets/img/gallery-sm/w1.webp 480w, assets/img/compress_gallery/w1.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/w2.webp" srcset="assets/img/gallery-sm/w2.webp 480w, assets/img/compress_gallery/w2.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
+        <img src="assets/img/compress_gallery/ww.webp" srcset="assets/img/gallery-sm/ww.webp 480w, assets/img/compress_gallery/ww.webp 1200w" sizes="(max-width: 480px) 50vw, (max-width: 992px) 33vw, 260px" loading="lazy" decoding="async" alt="Wedding photography by Isaac Media" />
       </div>
     </div>
   </div>

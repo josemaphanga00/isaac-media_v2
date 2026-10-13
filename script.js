@@ -30,16 +30,20 @@
 
   function initScrollExperience() {
     const progress = document.getElementById('reading-progress');
+    let max = 0;
+    const measure = () => { max = document.documentElement.scrollHeight - window.innerHeight; };
+    measure();
+    if ('ResizeObserver' in window) new ResizeObserver(measure).observe(document.body);
+    window.addEventListener('resize', measure, { passive: true });
     const updateProgress = () => {
       if (!progress) return;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
       progress.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
     };
     onScroll(updateProgress);
     updateProgress();
 
     if (prefersReducedMotion || window.matchMedia('(max-width: 576px)').matches || !('IntersectionObserver' in window)) return;
-    const targets = document.querySelectorAll('.glass-section, .footer, .package-card, .event-slideshow');
+    const targets = document.querySelectorAll('.package-card, .event-slideshow');
     if (!targets.length) return;
     document.body.classList.add('motion-ready');
     const observer = new IntersectionObserver((entries, currentObserver) => {
@@ -47,6 +51,10 @@
         if (!entry.isIntersecting) return;
         entry.target.classList.add('is-visible');
         currentObserver.unobserve(entry.target);
+        // Once the entrance has played, hand the element back to its own
+        // styles — otherwise .reveal-on-scroll's transform:none and slower
+        // transition keep overriding hover lifts (package cards).
+        setTimeout(() => entry.target.classList.remove('reveal-on-scroll', 'is-visible'), 1100);
       });
     }, { rootMargin: '0px 0px -56px 0px', threshold: 0.08 });
     targets.forEach((target) => {
@@ -54,6 +62,19 @@
       observer.observe(target);
     });
   }
+
+  // If a responsive candidate (e.g. a gallery-sm thumbnail) is missing,
+  // fall back to the full-size src instead of leaving a broken image.
+  document.addEventListener('error', (e) => {
+    const img = e.target;
+    if (img instanceof HTMLImageElement && img.getAttribute('srcset')) {
+      img.removeAttribute('srcset');
+      img.removeAttribute('sizes');
+      const src = img.getAttribute('src');
+      img.src = '';
+      img.src = src;
+    }
+  }, true);
 
   function debounce(fn, wait = 150) {
     let t;
@@ -97,7 +118,7 @@
       lastY = y;
     });
 
-    const navLinks = [...navbar.querySelectorAll('a[href^="#"]')];
+    const navLinks = [...navbar.querySelectorAll('.nav-links a[href^="#"]')];
     const sections = navLinks
       .map((link) => document.querySelector(link.getAttribute('href')))
       .filter(Boolean);
@@ -255,10 +276,15 @@
     };
     const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
 
-    document.addEventListener('visibilitychange', () => {
-      visible = !document.hidden;
-      visible ? start() : stop();
-    });
+    // Every crossfade forces all the frosted panels to re-blur, so only run
+    // it while the hero is actually on screen.
+    let heroInView = true;
+    const sync = () => (visible && heroInView ? start() : stop());
+    document.addEventListener('visibilitychange', () => { visible = !document.hidden; sync(); });
+    const hero = document.getElementById('hero');
+    if (hero && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => { heroInView = entry.isIntersecting; sync(); }, { threshold: 0.25 }).observe(hero);
+    }
 
     start();
   }
@@ -270,7 +296,7 @@
     const groups = document.querySelectorAll('[data-slideshow]');
     if (!groups.length) return;
 
-    groups.forEach((container) => {
+    groups.forEach((container, groupIndex) => {
       const slides = container.querySelectorAll('.event-slide');
       if (slides.length < 2) return;
 
@@ -307,15 +333,20 @@
       };
       const start = () => {
         if (prefersReducedMotion || isMobile || timer) return;
-        timer = setInterval(() => goTo((current + 1) % slides.length), 4000);
+        // staggered start so the four crossfades never land on the same frame
+        timer = setTimeout(function tick() {
+          goTo((current + 1) % slides.length);
+          timer = setTimeout(tick, 4000);
+        }, 1200 + groupIndex * 1000);
       };
-      const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+      const stop = () => { if (timer) { clearTimeout(timer); timer = null; } };
 
       if ('IntersectionObserver' in window) {
         new IntersectionObserver(
           (entries) => entries.forEach((e) => {
             if (e.isIntersecting) {
               loadSlide(current);
+              loadSlide((current + 1) % slides.length);
               start();
             } else stop();
           }),
@@ -332,7 +363,12 @@
     });
   }
 
-  const GALLERY_PATH = '/gallery';
+  // Directory the page lives in ("/" on a custom domain, "/repo/" on a
+  // GitHub Pages project site). pushState URLs are built from it so deep
+  // links never jump out of the project folder.
+  const BASE_PATH = new URL('./', document.baseURI).pathname;
+  const toPath = (p) => BASE_PATH + p.replace(/^\//, '');
+  const GALLERY_PATH = toPath('/gallery');
   const DEFAULT_TITLE = document.title;
 
   function openGalleryModal(pushUrl = true) {
@@ -355,9 +391,41 @@
     document.body.style.overflow = '';
     setTimeout(() => { overlay.hidden = true; }, 300);
     if (pushUrl && location.pathname === GALLERY_PATH) {
-      history.replaceState({}, '', '/');
+      history.replaceState({}, '', BASE_PATH);
     }
     document.title = DEFAULT_TITLE;
+  }
+
+  /* The gallery holds ~70 photos. Native loading="lazy" still pulls in several
+     screens' worth the moment it opens, so the images are handed to an
+     IntersectionObserver that releases each one only ~800px before it
+     scrolls into view. Original src stays in data-src (lightbox uses it). */
+  function prepareGalleryImages(overlay) {
+    const scroller = overlay.querySelector('.gallery-overlay-scroll');
+    const imgs = [...overlay.querySelectorAll('.gallery-masonry img')];
+    if (!scroller || !imgs.length || !('IntersectionObserver' in window)) return;
+    const release = (img) => {
+      if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+      if (img.dataset.sizes) img.sizes = img.dataset.sizes;
+      img.src = img.dataset.src;
+    };
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        io.unobserve(entry.target);
+        release(entry.target);
+      });
+    }, { root: scroller, rootMargin: '800px 0px' });
+    imgs.forEach((img) => {
+      img.dataset.src = img.getAttribute('src');
+      if (img.hasAttribute('srcset')) img.dataset.srcset = img.getAttribute('srcset');
+      if (img.hasAttribute('sizes')) img.dataset.sizes = img.getAttribute('sizes');
+      img.removeAttribute('srcset');
+      img.removeAttribute('sizes');
+      img.removeAttribute('src');
+      img.removeAttribute('loading'); // the observer is the lazy-loader now
+      io.observe(img);
+    });
   }
 
   function initGalleryModal() {
@@ -365,6 +433,7 @@
     const trigger = document.getElementById('portfolio-toggle');
     const closeBtn = document.getElementById('gallery-close');
     if (!overlay || !trigger) return;
+    prepareGalleryImages(overlay);
 
     trigger.addEventListener('click', (event) => {
       event.preventDefault();
@@ -375,7 +444,7 @@
       if (event.target === overlay) closeGalleryModal();
     });
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !overlay.hidden) closeGalleryModal();
+      if (event.key === 'Escape' && !overlay.hidden && !event.defaultPrevented) closeGalleryModal();
     });
     window.addEventListener('popstate', () => {
       if (location.pathname === GALLERY_PATH) openGalleryModal(false);
@@ -395,6 +464,7 @@
     package2: { path: '/packages/standard', title: 'Standard Package | ISAAC MEDIA' },
     package3: { path: '/packages/premium', title: 'Premium Package | ISAAC MEDIA' },
   };
+  Object.values(MODAL_ROUTES).forEach((route) => { route.path = toPath(route.path); });
   const PATH_TO_MODAL_KEY = Object.fromEntries(
     Object.entries(MODAL_ROUTES).map(([key, route]) => [route.path, key])
   );
@@ -544,7 +614,7 @@
 
       const route = currentKey && MODAL_ROUTES[currentKey];
       if (pushUrl && route && location.pathname === route.path) {
-        history.replaceState({}, '', returnUrl || '/');
+        history.replaceState({}, '', returnUrl || BASE_PATH);
         returnUrl = null;
       } else if (pushUrl && new URLSearchParams(location.search).has('modal')) {
         const url = new URL(location.href);
@@ -724,13 +794,22 @@
   /* ---------------------------------------------------------------
      REVIEWS CAROUSEL
      Native scroll-snap does the motion; JS only wires the buttons,
-     dots and a11y. Add REAL client reviews to REVIEWS — the section
-     stays hidden while the list is empty.
+    dots and a11y. Only approved, genuine client reviews belong in REVIEWS;
+    the visible empty state remains until real copy is added.
      Visit /?reviews=preview to see the layout with clearly-labelled
      sample cards (never shown to normal visitors).
   --------------------------------------------------------------- */
-  // Keep the section hidden until verified client reviews are approved for publication.
-  const REVIEWS = [];
+  // DRAFT copy from the original mock-up — replace with real, client-approved
+  // reviews before launch. Leave this array empty and the section falls back
+  // to the "Share your experience" card instead.
+  const REVIEWS = [
+    { name: "Sarah & John", meta: "Wedding", rating: 5, text: "ISAAC MEDIA captured our wedding beautifully. Every moment was perfect." },
+    { name: "Emily & Michael", meta: "Wedding", rating: 5, text: "Professional, creative, and a joy to work with. The photos exceeded our expectations." },
+    { name: "Jessica & David", meta: "Wedding", rating: 5, text: "Absolutely stunning work! The team made us feel so comfortable." },
+    { name: "Thabo & Lerato", meta: "Wedding", rating: 5, text: "From the first call to the final gallery, everything felt effortless. We still look at our photos every week." },
+    { name: "Naledi M.", meta: "Birthday Shoot", rating: 5, text: "Isaac made me feel confident in front of the camera. The edits were clean, bold and delivered fast." },
+    { name: "Kagiso & Palesa", meta: "Engagement", rating: 5, text: "Relaxed, creative and so easy to work with. Every frame feels like us." },
+  ];
   const PREVIEW_REVIEWS = [1, 2, 3, 4].map((n) => ({
     name: "Sample Client " + n, meta: "Preview only", rating: 5,
     text: "Sample review text for layout preview. Replace with a real client review."
@@ -745,6 +824,10 @@
     const preview = /[?&]reviews=preview\b/.test(location.search);
     const data = REVIEWS.length ? REVIEWS : (preview ? PREVIEW_REVIEWS : []);
     if (!data.length) return;
+
+    section.querySelector('#reviews-empty-state').hidden = true;
+    section.querySelector('.reviews-carousel').hidden = false;
+    section.querySelector('.reviews-more').hidden = false;
 
     const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const star = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21.1 7 14.2 2 9.3l6.9-1z"/></svg>';
@@ -857,7 +940,7 @@
     const show = (i) => {
       if (!gallery.length) return;
       index = (i + gallery.length) % gallery.length;
-      lightboxImg.src = gallery[index].src;
+      lightboxImg.src = gallery[index].dataset.src || gallery[index].src;
       lightboxImg.alt = gallery[index].alt || '';
     };
 
@@ -871,8 +954,9 @@
     };
     const close = () => {
       lightbox.classList.remove('active');
-      document.body.style.overflow = '';
-      returnFocus?.focus();
+      const galleryOpen = !document.getElementById('gallery-overlay')?.hidden;
+      document.body.style.overflow = galleryOpen ? 'hidden' : '';
+      returnFocus?.focus?.();
     };
 
     // Delegated — only images inside the gallery modal are clickable;
@@ -891,7 +975,7 @@
 
     document.addEventListener('keydown', (e) => {
       if (!lightbox.classList.contains('active')) return;
-      if (e.key === 'Escape') close();
+      if (e.key === 'Escape') { e.preventDefault(); close(); } // preventDefault tells the gallery behind us not to close too
       if (e.key === 'ArrowRight') show(index + 1);
       if (e.key === 'ArrowLeft') show(index - 1);
       if (e.key === 'Tab') {
