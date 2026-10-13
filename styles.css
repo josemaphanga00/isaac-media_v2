@@ -593,6 +593,34 @@ button {
     line-height: 1.35;
   }
   .scroll-indicator { margin-top: 1.5rem; height: 28px; }
+
+  /* Keep the first mobile viewport interactive and painted quickly. The
+     staggered entrance delays hero text and the width animation triggers
+     layout work while Lighthouse is measuring LCP/TBT. */
+  .navbar,
+  .hero-eyebrow,
+  .hero-title,
+  .hero-tagline,
+  .hero-location,
+  .hero-availability,
+  .hero-actions,
+  .scroll-indicator {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .hero-eyebrow::before,
+  .hero-eyebrow::after,
+  .hero-title::before,
+  .hero-title::after,
+  .scroll-indicator::after,
+  .btn-book.nav-book-btn::before {
+    animation: none !important;
+  }
+  .hero-eyebrow::before { transform: scaleX(1); }
+  .hero-eyebrow::after { transform: scaleX(-1); }
+  .hero-title::before,
+  .hero-title::after { opacity: 1; filter: none; }
+  .scroll-indicator::after { top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
