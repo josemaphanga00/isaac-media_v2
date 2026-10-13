@@ -415,7 +415,7 @@
 
   /* The gallery holds ~70 photos. Native loading="lazy" still pulls in several
      screens' worth the moment it opens, so the images are handed to an
-     IntersectionObserver that releases each one only ~800px before it
+     IntersectionObserver that releases each one only ~400px before it
      scrolls into view. Original src stays in data-src (lightbox uses it). */
   function prepareGalleryImages(overlay) {
     const scroller = overlay.querySelector('.gallery-overlay-scroll');
@@ -432,7 +432,7 @@
         io.unobserve(entry.target);
         release(entry.target);
       });
-    }, { root: scroller, rootMargin: '800px 0px' });
+    }, { root: scroller, rootMargin: '400px 0px' });
     imgs.forEach((img) => {
       img.dataset.src = img.getAttribute('src');
       if (img.hasAttribute('srcset')) img.dataset.srcset = img.getAttribute('srcset');
@@ -539,7 +539,7 @@
       <h2 class="text-uppercase">About Isaac Media</h2>
       <p class="item-intro text-muted">Isaac Media</p>
       <div class="image-wrapper image-wrapper--portrait">
-        <img class="img-fluid d-block mx-auto about-modal-img" src="assets/img/isaac-ngobeni/isaac2.webp" alt="Isaac Media" loading="lazy" decoding="async">
+        <img class="img-fluid d-block mx-auto about-modal-img" src="assets/img/isaac-ngobeni/isaac2.webp" srcset="assets/img/mobile/about-isaac.webp 800w" sizes="300px" width="1200" height="1800" alt="Isaac Media" loading="lazy" decoding="async">
       </div>
       <p class="about-text">Isaac Media is a creative visual brand founded by Isaac Ngobeni, a passionate photographer and videographer dedicated to capturing life's most meaningful moments with authenticity and excellence.</p>
       <p class="about-text">With over 10 years of experience in videography, 4 years in video editing, and 4 years in professional photography, Isaac brings a unique storytelling approach shaped by his journey behind the camera.</p>
@@ -549,23 +549,23 @@
     `,
     package1: () => packageTemplate({
       title: 'Starter', price: 'R9,000', tagline: 'Perfect for intimate moments and smaller celebrations.',
-      img: 'assets/img/package-img/msiza.webp', items: ['9 Hours of Photography', '1 Photographer', 'Professional Editing', '300+ High-Resolution Photos', 'Digital Delivery'],
+      img: 'assets/img/package-img/msiza.webp', mobileImg: 'assets/img/mobile/package-msiza.webp', items: ['9 Hours of Photography', '1 Photographer', 'Professional Editing', '300+ High-Resolution Photos', 'Digital Delivery'],
     }),
     package2: () => packageTemplate({
       title: 'Standard', price: 'R15,500', tagline: 'For a fuller, more memorable experience.',
-      img: 'assets/img/package-img/is3.webp', items: ['Complimentary Engagement Shoot', '9 Hours of Photography', '1 Photographer', '300+ High-Resolution Photos', 'Digital Delivery', '40-Page Photobook'],
+      img: 'assets/img/package-img/is3.webp', mobileImg: 'assets/img/mobile/package-is3.webp', items: ['Complimentary Engagement Shoot', '9 Hours of Photography', '1 Photographer', '300+ High-Resolution Photos', 'Digital Delivery', '40-Page Photobook'],
     }),
     package3: () => packageTemplate({
       title: 'Premium', price: 'R23,500', tagline: 'For clients who want everything captured and preserved beautifully.',
-      img: 'assets/img/package-img/sandrasabelo.webp', items: ['Complimentary Engagement Shoot', '1 Hour Bridal Shower Coverage', '9 Hours of Photography', '1 Photographer', 'Professional Editing', '300+ High-Resolution Photos', '5-Minute Highlight Video', 'Digital Delivery + Online Gallery', '40-Page Photobook'],
+      img: 'assets/img/package-img/sandrasabelo.webp', mobileImg: 'assets/img/mobile/package-sandrasabelo.webp', items: ['Complimentary Engagement Shoot', '1 Hour Bridal Shower Coverage', '9 Hours of Photography', '1 Photographer', 'Professional Editing', '300+ High-Resolution Photos', '5-Minute Highlight Video', 'Digital Delivery + Online Gallery', '40-Page Photobook'],
     }),
   };
 
-  function packageTemplate({ title, price, tagline, img, items }) {
+  function packageTemplate({ title, price, tagline, img, mobileImg, items }) {
     return `
       <h2 class="text-uppercase">${title}</h2>
       <p class="item-intro text-muted">Isaac Media</p>
-      <div class="image-wrapper image-wrapper--portrait"><img class="img-fluid d-block mx-auto" src="${img}" alt="${title} package" loading="lazy" decoding="async"></div>
+      <div class="image-wrapper image-wrapper--portrait"><img class="img-fluid d-block mx-auto" src="${img}" srcset="${mobileImg} 760w" sizes="300px" width="1200" height="1800" alt="${title} package" loading="lazy" decoding="async"></div>
       <h5>${tagline}</h5>
       <ul class="list-inline">${items.map((item) => `<li>${item}</li>`).join('')}</ul>
       <h5>${price}</h5>
