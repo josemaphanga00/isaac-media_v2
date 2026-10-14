@@ -49,82 +49,8 @@
         imagesrcset="assets/img/hero-section/hero_sabelo-960.webp 960w, assets/img/hero-section/hero_sabelo-1365.webp 1365w, assets/img/hero-section/hero_sabelo.webp 1600w"
         imagesizes="100vw" media="(min-width: 577px)" fetchpriority="high" />
 
-  <!-- Critical mobile CSS paints the first screen while the full sheet loads. -->
-  <link rel="stylesheet" href="styles.css" media="(min-width: 577px)" />
-  <link rel="preload" href="styles.css" as="style" media="(max-width: 576px)" fetchpriority="high"
-        onload="this.onload=null;this.rel='stylesheet';this.media='all'" />
-  <noscript><link rel="stylesheet" href="styles.css" /></noscript>
-  <style>
-    :root {
-      --font-display: "Instrument Serif", "Cormorant Garamond", Georgia, serif;
-      --font-body: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --font-accent: "Instrument Serif", Georgia, serif;
-      --color-bg: #0d0d0d;
-      --color-text: #fff;
-      --color-text-muted: rgba(255,255,255,.7);
-      --color-accent: #fff;
-      --color-line: #7fb2ff;
-      --color-line-rgb: 127,178,255;
-      --glass-bg: rgba(255,255,255,.08);
-      --glass-bg-strong: rgba(255,255,255,.12);
-      --glass-border: rgba(255,255,255,.15);
-      --glass-border-strong: rgba(255,255,255,.25);
-      --radius-sm: 10px;
-      --ease: cubic-bezier(.4,0,.2,1);
-    }
-    *,*::before,*::after { box-sizing: border-box; }
-    [hidden] { display: none !important; }
-    body { margin: 0; color: var(--color-text); background: var(--color-bg); font: 1rem/1.6 var(--font-body); -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
-    img,svg { display: block; max-width: 100%; }
-    img { height: auto; }
-    h1,h2,h3,h4,h5,h6 { margin: 0 0 .5rem; font-family: var(--font-display); font-weight: 400; line-height: 1.1; letter-spacing: -.01em; }
-    p { margin: 0 0 1rem; line-height: 1.7; }
-    a { color: var(--color-accent); text-decoration: none; }
-    button { color: inherit; font: inherit; cursor: pointer; }
-    .container { width: 100%; max-width: 1140px; margin: 0 auto; padding: 0 1.5rem; }
-    @media (max-width: 576px) {
-    .bg-slideshow { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
-    .bg-slide { position: absolute; inset: 0; background: center 25%/cover no-repeat; opacity: 0; }
-    .bg-slide.active { opacity: 1; }
-    .bg-slide-picture,.bg-slide-image { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .bg-slide-image { object-fit: cover; object-position: center 25%; }
-    .bg-overlay { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(rgba(0,0,0,.68),rgba(0,0,0,.5),rgba(0,0,0,.72)); }
-    .navbar { position: fixed; top: 1rem; left: 50%; z-index: 100; width: calc(100% - 2rem); max-width: 1100px; transform: translateX(-50%); }
-    .navbar-inner { display: flex; align-items: center; justify-content: space-between; padding: .6rem 1.1rem; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 999px; }
-    .logo { color: #fff; font: 400 1.05rem var(--font-display); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
-    .nav-links { display: flex; align-items: center; gap: 1.75rem; }
-    .nav-links a { color: rgba(255,255,255,.75); font-size: .95rem; }
-    .hamburger { display: flex; flex: 0 0 2.5rem; flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: 2.5rem; height: 2.5rem; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 50%; }
-    .hamburger span { width: 18px; height: 2px; background: #fff; border-radius: 2px; }
-    .mobile-menu { position: fixed; inset: 0; z-index: 99; display: flex; align-items: center; justify-content: center; background: rgba(10,10,10,.96); opacity: 0; visibility: hidden; }
-    .mobile-menu.open { opacity: 1; visibility: visible; }
-    .mobile-nav { display: flex; flex-direction: column; align-items: center; gap: 1.75rem; }
-    .mobile-nav a { color: #fff; font: 1.65rem var(--font-display); }
-    .hero-section { position: relative; display: flex; min-height: 100vh; min-height: 100svh; align-items: center; justify-content: center; padding: 6rem 1rem 2.5rem; text-align: center; }
-    .hero-section .container { position: relative; max-width: 900px; padding-right: 0; padding-left: 0; }
-    .hero-eyebrow { display: flex; align-items: center; justify-content: center; gap: .6rem; margin: 0 0 .5rem; color: rgba(255,255,255,.82); font: italic 300 .95rem var(--font-accent); letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; }
-    .hero-eyebrow::before,.hero-eyebrow::after { flex: 0 0 1.5rem; width: 1.5rem; height: 1px; background: linear-gradient(90deg,transparent,var(--color-line)); content: ""; }
-    .hero-eyebrow::after { transform: scaleX(-1); }
-    .hero-title { position: relative; display: inline-block; margin: .25rem 0 1rem; padding: .9rem 1rem; color: #fff; font: 400 clamp(2.65rem,11vw,3.6rem)/1.05 var(--font-display); letter-spacing: .02em; }
-    .hero-title::before,.hero-title::after { position: absolute; width: 18px; height: 18px; border: 1.5px solid var(--color-line); content: ""; }
-    .hero-title::before { top: 0; left: 0; border-right: 0; border-bottom: 0; }
-    .hero-title::after { right: 0; bottom: 0; border-top: 0; border-left: 0; }
-    .hero-tagline { max-width: 34ch; margin: 0 auto 1rem; color: rgba(255,255,255,.88); font: italic 300 1.05rem/1.45 var(--font-accent); }
-    .hero-location,.hero-availability { margin: 0 0 .3rem; color: rgba(255,255,255,.65); font: italic .92rem/1.45 var(--font-accent); }
-    .hero-actions { display: flex; justify-content: center; gap: .6rem; flex-wrap: wrap; margin-top: 1.25rem; }
-    .hero-actions .btn { flex: 1 1 0; min-width: 0; padding: .8rem .45rem; font-size: .78rem; line-height: 1.35; letter-spacing: .025em; }
-    .btn { display: inline-block; padding: .6rem 1.25rem; border: 1px solid transparent; border-radius: 10px; font-weight: 600; text-align: center; }
-    .btn-primary { color: #fff; background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.25); }
-    .btn-book { color: #fff; background: linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.05)); border-color: rgba(255,255,255,.15); }
-    .btn-outline-light { color: #fff; background: transparent; border-color: rgba(255,255,255,.25); }
-    .scroll-indicator { position: relative; width: 1px; height: 28px; margin: 1.5rem auto 0; background: rgba(127,178,255,.3); }
-    .nav-links { display: none; }
-    .hero-eyebrow,.hero-title,.hero-tagline,.hero-location,.hero-availability,.hero-actions,.scroll-indicator { opacity: 1; animation: none; }
-    .hero-title::before,.hero-title::after { opacity: 1; filter: none; }
-    .scroll-indicator::after { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--color-line); content: ""; }
-    }
-    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; } }
-  </style>
+  <!-- Apply the full layout before first paint to prevent post-load shifts. -->
+  <link rel="stylesheet" href="styles.css" fetchpriority="high" />
 
   <!-- Fonts — one request, two families used across the design -->
   <link rel="preload"

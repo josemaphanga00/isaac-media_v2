@@ -12,7 +12,7 @@ This summary is based on the repository history and current code. The commits de
 
 - The mobile hero image is compressed and separate mobile hero images are used for slideshow rotation. The desktop retains its larger images.
 - The initial hero image is present in the HTML as a responsive `<picture>` image, with viewport-specific preloads and high fetch priority. This makes it discoverable before JavaScript runs and exposes it as the likely Largest Contentful Paint image.
-- Critical mobile styles for the hero and page frame are inlined. The main stylesheet is loaded without blocking the initial mobile paint; desktop continues to load the stylesheet directly.
+- The main stylesheet is loaded once as a render-blocking stylesheet at every viewport size. The earlier mobile-only async activation could apply the full layout after the first paint, so this favors a stable layout over an unstyled early paint. The latest PageSpeed mobile report showed CLS 1.0; a fresh run is still needed to confirm the effect.
 - JavaScript startup work is split across idle callbacks where available, with a timeout fallback, instead of running all initializers together.
 - The Google Fonts stylesheet is requested at low priority and uses `font-display: optional`. This avoids holding up initial text or forcing a late font swap; on some visits the system fallback can remain in use.
 
@@ -35,6 +35,7 @@ This summary is based on the repository history and current code. The commits de
 - **Loading the full visual collection up front:** gallery and slideshow imagery is deferred. A photo may take a moment to appear when first brought near the viewport, but initial page loading does less work and downloads fewer unseen images.
 - **Animated mobile hero entrance:** the staggered text and decorative entrance effects were removed from the mobile first paint so visitors see the message and calls to action without waiting for animation delays.
 - **Guaranteed custom font on first paint:** the optional, low-priority font request favors immediate readable text over waiting for custom typography. Depending on cache and connection timing, fallback fonts may be shown for the visit.
+- **Mobile stylesheet timing:** applying the full CSS before first paint can delay FCP on a slow connection, but avoids moving page content when the stylesheet activates later.
 - **Uninterrupted background activity:** off-screen slideshows and hidden-tab timers stop, reducing unnecessary work. Hero rotation is still retained while the hero is visible.
 
 ## Why these choices
