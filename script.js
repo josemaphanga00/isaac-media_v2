@@ -195,6 +195,7 @@
       mobileMenu.classList.toggle('open', open);
       hamburger.setAttribute('aria-expanded', String(open));
       mobileMenu.setAttribute('aria-hidden', String(!open));
+      hamburger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
       document.body.style.overflow = open ? 'hidden' : '';
     };
 
@@ -339,7 +340,16 @@
           slide.dataset.loaded = 'true';
           resolve(true);
         };
-        image.onerror = () => resolve(false);
+        image.onerror = () => {
+          // Missing mobile thumbnail? Fall back to the desktop image.
+          const fallback = slide.dataset.desktopSrc;
+          if (isMobile && fallback && fallback !== src) {
+            const retry = new Image();
+            retry.onload = () => { slide.style.backgroundImage = `url("${fallback}")`; slide.dataset.loaded = 'true'; resolve(true); };
+            retry.onerror = () => resolve(false);
+            retry.src = fallback;
+          } else resolve(false);
+        };
         image.src = src;
         if (image.complete && image.naturalWidth) {
           slide.style.backgroundImage = `url("${src}")`;
@@ -399,9 +409,16 @@
   const GALLERY_PATH = toPath('/gallery');
   const DEFAULT_TITLE = document.title;
 
+  // Closing an overlay we pushed a history entry for goes "back" instead of
+  // stacking a duplicate entry, so the Back button always behaves as expected.
+  let historyBusy = false;
+  const goBack = () => { historyBusy = true; setTimeout(() => { historyBusy = false; }, 600); history.back(); };
+  let galleryReturnFocus = null;
+
   function openGalleryModal(pushUrl = true) {
     const overlay = document.getElementById('gallery-overlay');
-    if (!overlay) return;
+    if (!overlay || !overlay.hidden) return;
+    galleryReturnFocus = document.activeElement;
     if (!overlay.dataset.imagesPrepared) {
       prepareGalleryImages(overlay);
       overlay.dataset.imagesPrepared = 'true';
@@ -410,6 +427,7 @@
     void overlay.offsetWidth;
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+    overlay.querySelector('#gallery-close')?.focus();
     if (pushUrl && location.pathname !== GALLERY_PATH) {
       history.pushState({ gallery: true }, '', GALLERY_PATH);
     }
@@ -418,10 +436,15 @@
 
   function closeGalleryModal(pushUrl = true) {
     const overlay = document.getElementById('gallery-overlay');
-    if (!overlay) return;
+    if (!overlay || overlay.hidden) return;
+    if (pushUrl && history.state?.gallery) {
+      if (!historyBusy) goBack();
+      return;
+    }
+    historyBusy = false;
     overlay.classList.remove('open');
     document.body.style.overflow = '';
-    setTimeout(() => { overlay.hidden = true; }, 300);
+    setTimeout(() => { overlay.hidden = true; galleryReturnFocus?.focus?.(); }, 300);
     if (pushUrl && location.pathname === GALLERY_PATH) {
       history.replaceState({}, '', BASE_PATH);
     }
@@ -448,7 +471,12 @@
         release(entry.target);
       });
     }, { root: scroller, rootMargin: '400px 0px' });
+    overlay.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.gallery-masonry img')) { e.preventDefault(); e.target.click(); }
+    });
     imgs.forEach((img) => {
+      img.tabIndex = 0;
+      img.setAttribute('role', 'button');
       img.dataset.src = img.getAttribute('src');
       if (img.hasAttribute('srcset')) img.dataset.srcset = img.getAttribute('srcset');
       if (img.hasAttribute('sizes')) img.dataset.sizes = img.getAttribute('sizes');
@@ -597,12 +625,12 @@
 
     let lastFocused = null;
     let currentKey = null;
-    let returnUrl = null;
 
     function open(key, pushUrl = true) {
       const build = modalTemplates[key];
       if (!build) return;
-      lastFocused = document.activeElement;
+      const wasOpen = !overlay.hidden && currentKey !== null;
+      if (!wasOpen) lastFocused = document.activeElement;
       content.innerHTML = build();
       content.querySelector('h2')?.setAttribute('id', 'modal-heading');
       content.classList.remove('modal-content--enter');
@@ -614,6 +642,8 @@
       document.body.style.overflow = 'hidden';
       closeBtn.focus();
       bindFormsIn(content);
+      const dateInput = content.querySelector('input[type="date"]');
+      if (dateInput) dateInput.min = new Date().toISOString().slice(0, 10);
       if (key === 'booking') {
         const requestedPackage = new URLSearchParams(location.search).get('package');
         const packageSelect = content.querySelector('[name="weddingPackage"]');
@@ -626,14 +656,21 @@
       const route = MODAL_ROUTES[key];
       if (route) {
         if (pushUrl && location.pathname !== route.path) {
-          returnUrl = location.href;
-          history.pushState({ modal: key }, '', route.path);
+          // Modal -> modal swaps the entry so Back closes everything at once.
+          if (wasOpen) history.replaceState({ modal: key }, '', route.path);
+          else history.pushState({ modal: key }, '', route.path);
         }
         document.title = route.title;
       }
     }
 
     function close(pushUrl = true) {
+      if (overlay.hidden || currentKey === null) return;
+      if (pushUrl && history.state?.modal) {
+        if (!historyBusy) goBack();
+        return;
+      }
+      historyBusy = false;
       overlay.classList.remove('open');
       document.body.style.overflow = '';
       setTimeout(() => {
@@ -644,8 +681,7 @@
 
       const route = currentKey && MODAL_ROUTES[currentKey];
       if (pushUrl && route && location.pathname === route.path) {
-        history.replaceState({}, '', returnUrl || BASE_PATH);
-        returnUrl = null;
+        history.replaceState({}, '', BASE_PATH);
       } else if (pushUrl && new URLSearchParams(location.search).has('modal')) {
         const url = new URL(location.href);
         url.searchParams.delete('modal');
@@ -665,7 +701,7 @@
         return;
       }
       if (e.target.closest('[data-whatsapp]')) {
-        window.open('https://wa.me/27767308994', '_blank');
+        window.open('https://wa.me/27767308994', '_blank', 'noopener');
         return;
       }
       if (e.target.closest('[data-close]')) close();

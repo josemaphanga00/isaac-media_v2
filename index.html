@@ -610,9 +610,9 @@
   </div>
 
   <!-- ============ LIGHTBOX ============ -->
-  <div class="lightbox" id="lightbox">
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
     <div class="lightbox-topbar">
-      <img src="assets/img/close-icon.svg" id="lightboxClose" class="lightbox-close-icon" alt="Close" />
+      <button type="button" id="lightboxClose" class="lightbox-close" aria-label="Close image"><img src="assets/img/close-icon.svg" class="lightbox-close-icon" alt="" /></button>
     </div>
     <button class="lightbox-prev" id="prevBtn" aria-label="Previous image">&#10094;</button>
     <img class="lightbox-img" id="lightboxImg" src="" alt="Gallery preview">

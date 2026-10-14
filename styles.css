@@ -289,7 +289,9 @@ button {
   border-radius: inherit;
   background: radial-gradient(circle, rgba(var(--color-line-rgb), 0.4), transparent 70%);
   opacity: 0;
-  animation: bookGlowPulse 4s ease-in-out infinite;
+  /* 3 gentle pulses then rest: an infinite animation behind a blurred
+     navbar re-composites the blur every frame, forever */
+  animation: bookGlowPulse 4s ease-in-out 1.5s 3;
 }
 @keyframes bookGlowPulse {
   0%, 100% { opacity: 0; }
@@ -550,17 +552,19 @@ button {
 .scroll-indicator::after {
   content: "";
   position: absolute;
-  top: -40px;
+  top: 0;
   left: 0;
   width: 100%;
   height: 40px;
   background: var(--color-line);
-  animation: scrollDrip 2.2s ease-in-out infinite;
+  transform: translateY(-100%);
+  will-change: transform;
+  animation: scrollDrip 2.2s ease-in-out infinite; /* transform: no layout per frame */
 }
 @keyframes scrollDrip {
-  0%   { top: -40px; }
-  60%  { top: 40px; }
-  100% { top: 40px; }
+  0%   { transform: translateY(-100%); }
+  60%  { transform: translateY(100%); }
+  100% { transform: translateY(100%); }
 }
 
 @media (max-width: 576px) {
@@ -1461,6 +1465,7 @@ button {
 }
 
 .lightbox-topbar { position: absolute; top: 20px; right: 24px; z-index: 301; }
+.lightbox-close { background: none; border: 0; padding: 0.5rem; line-height: 0; border-radius: 50%; }
 .lightbox-close-icon { width: 28px; cursor: pointer; filter: invert(1); opacity: 0.85; }
 
 .lightbox-prev, .lightbox-next {
