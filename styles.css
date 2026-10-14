@@ -567,6 +567,24 @@ button {
   100% { transform: translateY(100%); }
 }
 
+/* Keep desktop hero content visible in the first paint so Lighthouse can
+   identify and time the page's largest contentful element reliably. */
+@media (min-width: 577px) {
+  .hero-eyebrow, .hero-title, .hero-tagline,
+  .hero-location, .hero-availability, .hero-actions {
+    opacity: 1;
+    animation: none;
+  }
+  .hero-title::before, .hero-title::after {
+    opacity: 1;
+    animation: none;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    transform: scaleX(1);
+    animation: none;
+  }
+}
+
 @media (max-width: 576px) {
   .hero-section {
     padding: 6rem 1rem 2.5rem;
